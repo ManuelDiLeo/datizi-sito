@@ -1,0 +1,2272 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Da Tizi - Hair Studio</title>
+  <meta name="description" content="Da Tizi - Hair Studio a Colle Val d'Elsa. Taglio, colore e styling." />
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --fg:#0b0b0b;
+      --muted:rgba(11,11,11,.62);
+      --line:rgba(11,11,11,.14);
+
+      --paper:#f3f0e8;       /* beige/panna */
+      --paperText:#2a2926;
+      --paperMuted:rgba(42,41,38,.62);
+
+      --radius:18px;
+      --max:1180px;
+
+      --ease: cubic-bezier(.2,.9,.2,1);
+      --dur: 780ms;
+      --vh: 100vh;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:var(--bg);
+      color:var(--fg);
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+    body.is-preloading{
+      overflow:hidden;
+    }
+    a{ color:inherit; text-decoration:none; }
+    button{ font:inherit; color:inherit; }
+    img{ display:block; }
+
+    /* Top bar (solo prima pagina) */
+    .topBar{
+      position:fixed;
+      top:0; left:0; right:0;
+      z-index:80;
+      display:flex;
+      justify-content:center;
+      pointer-events:none;
+      opacity:1;
+      transform:translateY(0);
+      transition: opacity 220ms ease, transform 220ms ease;
+      display:none !important;
+    }
+    .topBar.is-hidden{
+      opacity:0;
+      transform:translateY(-10px);
+      pointer-events:none;
+    }
+    .topBar.is-preload-hidden{
+      opacity:0;
+      transform:translateY(-12px);
+      pointer-events:none;
+    }
+    .topBar__inner{
+      width:min(var(--max), calc(100% - 24px));
+      margin:12px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(10,10,10,.58);
+      backdrop-filter: blur(14px) saturate(1.05);
+      -webkit-backdrop-filter: blur(14px) saturate(1.05);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      color:#fff;
+      pointer-events:auto;
+      box-shadow: 0 10px 28px rgba(0,0,0,.16);
+    }
+    .topBar__brand{
+      display:inline-flex;
+      align-items:center;
+      min-width:0;
+    }
+    .topBar__logo{
+      height:38px;
+      width:auto;
+      display:block;
+      object-fit:contain;
+      filter: drop-shadow(0 2px 10px rgba(255,255,255,.08));
+      transition: opacity 180ms ease;
+    }
+    .topBar__nav{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-left:auto;
+    }
+    .topBar__link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:40px;
+      padding:0 12px;
+      border-radius:999px;
+      color:rgba(255,255,255,.92);
+      font-size:14px;
+      text-decoration:none;
+      border:1px solid rgba(255,255,255,0);
+    }
+    .topBar__link:hover{
+      background:rgba(255,255,255,.08);
+      color:#fff;
+    }
+    .topBar__link--cta{
+      border-color:rgba(255,255,255,.24);
+      background:rgba(255,255,255,.07);
+      color:#fff;
+    }
+    .topBar__link--cta:hover{
+      border-color:rgba(255,255,255,.35);
+      background:rgba(255,255,255,.08);
+    }
+    @media (max-width: 640px){
+      .topBar__inner{
+        width:calc(100% - 16px);
+        margin:8px;
+        padding:8px 10px;
+      }
+      .topBar__logo{
+        height:32px;
+      }
+      .topBar__nav{
+        gap:6px;
+      }
+      .topBar__link{
+        min-height:34px;
+        padding:0 10px;
+        font-size:13px;
+      }
+    }
+
+    .cta{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.32);
+      color:#fff;
+      font-size:14px;
+      white-space:nowrap;
+    }
+    .cta:hover{ border-color:rgba(255,255,255,.55); }
+
+    .kicker{
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      font-size:12px;
+      opacity:.85;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 16px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.32);
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      font-size:14px;
+      cursor:pointer;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+    .btn:hover{ border-color:rgba(255,255,255,.6); transform: translateY(-1px); }
+    .btn--solid{
+      background:#fff;
+      color:#000;
+      border-color:#fff;
+    }
+    .btn--solid:hover{ background:#f2f2f2; border-color:#f2f2f2; }
+
+    /* ==============================
+       SPLIT PAGES (SCROLL A SCATTI)
+       ============================== */
+
+    .splitWrap{
+      background: var(--paper);
+      color: var(--paperText);
+      position:relative;
+    }
+
+    /* Spacer per "pinned": crea lo spazio scrollabile per N pagine */
+    .splitSpacer{
+      height: calc(var(--steps, 4) * var(--vh, 100vh));
+    }
+
+    /* Stage fissata quando entri nella sezione */
+    .splitStage{
+      position: sticky;
+      top:0;
+      height:var(--vh, 100vh);
+      overflow:hidden;
+      border-top: 0;
+      background: var(--paper);
+    }
+    .splitStage.is-step-0{
+      background: var(--paper);
+    }
+    .firstFxBackdrop{
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:50%;
+      transform:translateX(-50%);
+      width:0;
+      z-index:5;
+      background:#000;
+      opacity:0;
+      pointer-events:none;
+      will-change: width, opacity;
+      display:none !important;
+    }
+    .startCover{
+      position:absolute;
+      inset:0;
+      z-index:6;
+      overflow:hidden;
+      background-image: var(--start-cover);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity:0;
+      pointer-events:none;
+      transition: opacity 260ms ease;
+    }
+    .startCover::before,
+    .startCover::after{
+      display:none !important;
+    }
+    .splitStage.is-step-0 .startCover{
+      opacity:1;
+    }
+    .splitGrid{
+      height:100%;
+      display:grid;
+      grid-template-columns: 1fr; /* mobile */
+    }
+
+    .leftPane,
+    .rightPane{
+      position:relative;
+      height:100%;
+      overflow:hidden;
+    }
+    .rightPane{
+      background:#000;
+    }
+
+    /* Desktop: 50/50 */
+    @media (min-width: 1024px){
+      .splitGrid{
+        grid-template-columns: 1fr 1fr;
+      }
+      .leftPane{
+        border-right: 1px solid rgba(42,41,38,.10);
+      }
+      /* Step iniziale: foto unica senza linea centrale */
+      .splitStage.is-step-0 .leftPane{
+        border-right: 0 !important;
+      }
+      /* Anti-seam: piccolo overlap della meta destra sulla prima foto */
+      .splitStage.is-step-0 #rightRail .imgPage[data-step="0"] .joinRight{
+        margin-left: -2px;
+        width: calc(100% + 2px);
+      }
+    }
+
+    /* Rail = "colonna che si muove" */
+    .rail{
+      position:absolute;
+      top:0; left:0; right:0;
+      height: calc(var(--steps, 4) * var(--vh, 100vh));
+      will-change: transform;
+      transition: transform var(--dur) var(--ease);
+    }
+
+    /* Ogni pagina */
+    .page{
+      height:var(--vh, 100vh);
+      display:flex;
+      align-items:center;
+      padding: 84px 18px;
+    }
+    .pageInner{
+      width:min(560px, 100%);
+      margin-left: clamp(0px, 6vw, 80px);
+    }
+    .pageKicker{
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      font-size:11px;
+      opacity:.75;
+      margin:0 0 12px;
+    }
+    .pageTitle{
+      margin:0 0 12px;
+      font-size:42px;
+      line-height:1.02;
+      letter-spacing:-.03em;
+      font-weight:560;
+    }
+    .pageText{
+      margin:0 0 18px;
+      color: var(--paperMuted);
+      font-size:16px;
+      line-height:1.7;
+      max-width:52ch;
+    }
+    .pageLink{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 0;
+      border-bottom: 1px solid rgba(42,41,38,.24);
+      font-size:15px;
+    }
+    .pageLink span{
+      display:inline-flex;
+      width:34px; height:34px;
+      border:1px solid rgba(42,41,38,.28);
+      border-radius:999px;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* Destra: immagini a pieno schermo per pagina */
+    .imgPage{
+      height:var(--vh, 100vh);
+      position:relative;
+      background:#000;
+      overflow:hidden;
+    }
+    .imgPage img,
+    .imgPage video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      filter:saturate(1.02) contrast(1.02);
+      transform: scale(1.02) translateZ(0);
+      backface-visibility:hidden;
+    }
+    .imgPage video{
+      display:block;
+      object-fit:contain;
+      transform:none;
+      filter:none;
+      background:#000;
+    }
+    .imgPage .videoLayer{
+      position:relative;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:#000;
+    }
+    .imgPage .videoLayer .videoBg,
+    .imgPage .videoLayer .videoMain{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+    }
+    .imgPage .videoLayer .videoBg{
+      object-fit:cover;
+      filter: blur(22px) brightness(.72);
+      transform:scale(1.14);
+    }
+    .imgPage .videoLayer .videoMain{
+      object-fit:contain;
+      filter:none;
+      transform:none;
+      background:transparent;
+      z-index:1;
+    }
+    .tagliGallery{
+      position:relative;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:#111;
+    }
+    .tagliGallery__slide{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      pointer-events:none;
+      transition: opacity 220ms ease;
+    }
+    .tagliGallery__slide[data-media-type="image"]::before{
+      content:"";
+      position:absolute;
+      inset:-24px;
+      background-image:var(--tagli-bg);
+      background-size:cover;
+      background-position:var(--tagli-pos, center center);
+      filter:blur(22px) brightness(.66) saturate(1.08);
+      transform:scale(1.08);
+      z-index:0;
+    }
+    .tagliGallery__slide.is-active{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .tagliGallery__slide > img{
+      position:relative;
+      z-index:1;
+      width:100%;
+      height:100%;
+      box-sizing:border-box;
+      padding:clamp(18px, 3vw, 54px);
+      object-fit:contain;
+      object-position:var(--tagli-pos, center center);
+      display:block;
+      transform:none;
+      filter:none;
+      backface-visibility:visible;
+      background:transparent;
+    }
+    .tagliGallery__slide[data-media-index="1"]{
+      --tagli-pos:center 44%;
+    }
+    .tagliGallery__slide[data-media-index="2"]{
+      --tagli-pos:center 42%;
+    }
+    .tagliGallery__slide[data-media-index="3"]{
+      --tagli-pos:center 43%;
+    }
+    .tagliGallery__slide[data-media-index="4"],
+    .tagliGallery__slide[data-media-index="5"]{
+      --tagli-pos:center 38%;
+    }
+    .tagliGallery__slide .videoLayer{
+      width:100%;
+      height:100%;
+    }
+    .tagliGallery__slide .videoLayer .videoMain{
+      object-fit:contain;
+      transform:none;
+      filter:none;
+    }
+    .tagliGallery__controls{
+      position:absolute;
+      inset:0;
+      z-index:3;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      pointer-events:none;
+    }
+    .tagliGallery__nav,
+    .tagliGallery__dots{
+      pointer-events:auto;
+    }
+    .tagliGallery__nav{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:38px;
+      height:38px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.28);
+      background:rgba(10,10,10,.35);
+      color:#fff;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .tagliGallery__nav[data-gallery-prev]{ left:12px; }
+    .tagliGallery__nav[data-gallery-next]{ right:12px; }
+    .tagliGallery__nav:hover{
+      background:rgba(10,10,10,.55);
+      border-color:rgba(255,255,255,.45);
+    }
+    .tagliGallery__nav:focus-visible{
+      outline:2px solid rgba(255,255,255,.5);
+      outline-offset:2px;
+    }
+    .tagliGallery__dots{
+      display:none;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      flex:1;
+    }
+    .tagliGallery__dot{
+      width:7px;
+      height:7px;
+      border-radius:999px;
+      border:0;
+      padding:0;
+      background:rgba(255,255,255,.35);
+      cursor:pointer;
+    }
+    .tagliGallery__dot.is-active{
+      width:20px;
+      background:#fff;
+    }
+    .imgPage::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(to top, rgba(0,0,0,.20), rgba(0,0,0,.00));
+      pointer-events:none;
+    }
+
+    /* JOIN: meta sinistra e meta destra della stessa immagine */
+    .joinRight{
+      height:var(--vh, 100vh);
+      background-size: 200% 100%;
+      background-repeat:no-repeat;
+      background-position: center;
+    }
+    .joinRight{
+      background-position: right center;
+    }
+    /* In join mode, nascondiamo la "pageInner" standard e usiamo uno strato */
+    .joinOverlay{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      display:none;
+    }
+    .is-join .joinOverlay{
+      display:block;
+    }
+
+    /* leggera velatura per rendere leggibile testo */
+    .joinOverlay::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(to top, rgba(243,240,232,.92), rgba(243,240,232,.55));
+    }
+    /* Niente velatura sopra la foto nella pagina JOIN */
+    .page.is-join .joinOverlay,
+    .page.is-join .joinOverlay::after{
+      display:none !important;
+    }
+    /* Mobile: niente scroll-jack (torna normale) */
+    .mobileNote{
+      display:block;
+      padding: 18px 18px 0;
+      color: rgba(42,41,38,.62);
+      font-size: 13px;
+    }
+    @media (min-width: 1024px){
+      .mobileNote{ display:none; }
+    }
+
+    /* Contatti + footer */
+    .section{
+      display:flex;
+      justify-content:center;
+      padding: 64px 18px;
+    }
+    .section__inner{ width:min(var(--max), 100%); }
+
+    .contactBox{
+      width:100%;
+      padding:0;
+      background:transparent;
+      border:0;
+      border-radius:0;
+    }
+    .contactMap{
+      margin: 14px 0 18px;
+      width:min(100%, 1120px);
+      margin-left: 0;
+      margin-right: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      border:1px solid rgba(11,11,11,.08);
+      background:#f2f2f2;
+      box-shadow:none;
+    }
+    .contactMap iframe{
+      width:100%;
+      height: min(52vh, 520px);
+      min-height: 360px;
+      border:0;
+      display:block;
+    }
+    .contactMap iframe[hidden],
+    .mapConsent[hidden]{
+      display:none !important;
+    }
+    .mapConsent{
+      min-height:360px;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      justify-content:center;
+      gap:12px;
+      padding:24px;
+      color:var(--fg);
+      background:#f2f2f2;
+    }
+    .mapConsent p{
+      margin:0;
+      max-width:58ch;
+      color:var(--muted);
+      line-height:1.5;
+    }
+    .contactMeta{
+      display:grid;
+      gap:10px;
+      margin: 0 0 20px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.5;
+    }
+    .contactMeta strong{
+      color:var(--fg);
+    }
+    .whereTitle{
+      margin:0 0 10px;
+      color:var(--fg);
+      font-size: clamp(36px, 6vw, 58px);
+      line-height:.98;
+      letter-spacing:.02em;
+      font-weight:700;
+      text-transform:uppercase;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    .whereLead{
+      margin:0;
+      color:var(--muted);
+      font-size: clamp(16px, 2vw, 19px);
+      line-height:1.6;
+      max-width: 44ch;
+    }
+    .contactActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    @media (max-width: 640px){
+      .contactMap{
+        width: calc(100vw - 16px);
+        margin-left: calc(50% - 50vw + 8px);
+        border-radius: 12px;
+      }
+      .contactMap iframe{
+        height: 320px;
+        min-height: 320px;
+      }
+      .contactBox{
+        padding:0;
+      }
+    }
+    .footer{
+      padding: 54px 18px 70px;
+      display:flex;
+      justify-content:center;
+      border-top:1px solid var(--line);
+      background:#fff;
+    }
+    .footer__inner{
+      width:min(var(--max), 100%);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .footer strong{ color:var(--fg); }
+    .footlinks{ display:flex; flex-wrap:wrap; gap:12px; }
+    .footlinks button{
+      padding:0;
+      border:0;
+      background:transparent;
+      color:inherit;
+      cursor:pointer;
+    }
+    .footlinks button:hover,
+    .footlinks a:hover{
+      color:var(--fg);
+    }
+    .muted{ color:var(--muted); }
+
+    .privacyBanner{
+      position:fixed;
+      left:16px;
+      right:16px;
+      bottom:16px;
+      z-index:180;
+      display:flex;
+      justify-content:center;
+      pointer-events:none;
+    }
+    .privacyBanner[hidden],
+    .privacyModal[hidden]{
+      display:none !important;
+    }
+    .privacyBanner__inner{
+      width:min(940px, 100%);
+      padding:16px;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:14px;
+      background:rgba(12,12,12,.92);
+      color:#fff;
+      box-shadow:0 18px 60px rgba(0,0,0,.28);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      pointer-events:auto;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:14px;
+      align-items:center;
+    }
+    .privacyBanner h2{
+      margin:0 0 6px;
+      font-size:16px;
+      line-height:1.25;
+    }
+    .privacyBanner p{
+      margin:0;
+      color:rgba(255,255,255,.76);
+      font-size:14px;
+      line-height:1.45;
+    }
+    .privacyBanner__actions,
+    .privacyActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .privacyBtn{
+      min-height:40px;
+      padding:0 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.22);
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .privacyBtn--solid{
+      background:#fff;
+      color:#0b0b0b;
+      border-color:#fff;
+    }
+    .privacyBtn--light{
+      background:#0b0b0b;
+      color:#fff;
+      border-color:#0b0b0b;
+    }
+    .privacyBtn:hover{
+      filter:brightness(1.04);
+    }
+    .privacyModal{
+      position:fixed;
+      inset:0;
+      z-index:190;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(0,0,0,.52);
+    }
+    .privacyModal__panel{
+      width:min(760px, 100%);
+      max-height:min(760px, calc(100vh - 36px));
+      overflow:auto;
+      border-radius:14px;
+      background:#fff;
+      color:var(--fg);
+      box-shadow:0 24px 80px rgba(0,0,0,.32);
+    }
+    .privacyModal__head{
+      position:sticky;
+      top:0;
+      z-index:1;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:18px 20px;
+      border-bottom:1px solid var(--line);
+      background:#fff;
+    }
+    .privacyModal__head h2{
+      margin:0;
+      font-size:20px;
+      line-height:1.2;
+    }
+    .privacyModal__close{
+      width:38px;
+      height:38px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+    }
+    .privacyModal__body{
+      padding:20px;
+      color:var(--muted);
+      line-height:1.58;
+      font-size:15px;
+    }
+    .privacyModal__body h3{
+      margin:22px 0 8px;
+      color:var(--fg);
+      font-size:17px;
+    }
+    .privacyModal__body p,
+    .privacyModal__body ul{
+      margin:0 0 12px;
+    }
+    .privacyChoice{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      padding:14px 0;
+      border-bottom:1px solid var(--line);
+    }
+    .privacyChoice strong{
+      color:var(--fg);
+    }
+    .privacyChoice input{
+      width:22px;
+      height:22px;
+      margin-top:2px;
+      accent-color:#0b0b0b;
+    }
+    .privacyModal__foot{
+      padding:16px 20px 20px;
+      border-top:1px solid var(--line);
+      background:#fff;
+    }
+    @media (max-width: 720px){
+      .privacyBanner__inner{
+        grid-template-columns:1fr;
+      }
+      .privacyBanner__actions,
+      .privacyActions{
+        justify-content:flex-start;
+      }
+      .privacyBtn{
+        flex:1;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .rail{ transition:none; }
+    }
+  
+    /* Contatti a schermo (100vh) + footer dentro (niente scroll extra) */
+    .contactScreen{
+      min-height:100vh;
+      background:#fff;
+      display:flex;
+      justify-content:center;
+      padding: 0 18px;
+      border-top:0;
+    }
+    .contactScreen__inner{
+      width:min(var(--max), 100%);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      padding: 120px 0 28px;
+    }
+    .contactScreen__main{
+      flex:1;
+      display:flex;
+      align-items:flex-start;
+      justify-content:flex-start;
+      padding-top: 6px;
+    }
+    .contactScreen .footer{
+      padding: 18px 0 0;
+      margin-top:auto;
+      border-top:1px solid var(--line);
+      background:transparent;
+    }
+    .contactScreen .footer__inner{
+      width:100%;
+      padding: 18px 0 0;
+      color:var(--muted);
+    }
+    .contactScreen .footer strong{
+      color:var(--fg);
+    }
+
+    .waFab{
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 70;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:58px;
+      height:58px;
+      border-radius:999px;
+      background:#25D366;
+      color:#fff;
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow: 0 10px 28px rgba(0,0,0,.22);
+      text-decoration:none;
+      padding:0;
+    }
+    .waFab:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+    .waFab:focus-visible{
+      outline: 3px solid rgba(37,211,102,.35);
+      outline-offset: 3px;
+    }
+    .waFab svg{
+      width:30px;
+      height:30px;
+      display:block;
+      fill: currentColor;
+    }
+
+    /* Preload */
+    .preloader{
+      position:fixed;
+      inset:0;
+      z-index:200;
+      background:
+        radial-gradient(1200px 700px at 50% 42%, rgba(255,255,255,.04), rgba(255,255,255,0) 55%),
+        radial-gradient(900px 500px at 50% 120%, rgba(255,255,255,.03), rgba(255,255,255,0) 60%),
+        #040404;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:1;
+      transition: opacity 180ms ease, visibility 180ms ease;
+    }
+    .preloader.is-hidden{
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+    }
+    .preloader__logoWrap{
+      position:relative;
+      width:min(58vw, 340px);
+      aspect-ratio: 1 / 1;
+      display:grid;
+      place-items:center;
+      border-radius:22px;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.02), rgba(255,255,255,0) 72%);
+    }
+    .preloader__logo{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      filter: brightness(.96) contrast(1.02) drop-shadow(0 10px 22px rgba(255,255,255,.05));
+      animation: preloadLogoGlow 2.8s ease-in-out infinite;
+    }
+    .preloader__shine{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 52% 45%, rgba(255,255,255,.36), rgba(255,255,255,0) 55%);
+      opacity:0;
+      pointer-events:none;
+      filter: blur(6px);
+      mix-blend-mode: screen;
+      -webkit-mask-image: url('img/immlogo.png');
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      -webkit-mask-size: contain;
+      mask-image: url('img/immlogo.png');
+      mask-repeat: no-repeat;
+      mask-position: center;
+      mask-size: contain;
+      animation: preloadGlowBurst 2.8s ease-in-out infinite;
+    }
+    .preloader__flash{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 48% 54%, rgba(255,255,255,.55), rgba(255,255,255,0) 58%);
+      opacity:0;
+      pointer-events:none;
+      filter: blur(10px);
+      mix-blend-mode: screen;
+      -webkit-mask-image: url('img/immlogo.png');
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      -webkit-mask-size: contain;
+      mask-image: url('img/immlogo.png');
+      mask-repeat: no-repeat;
+      mask-position: center;
+      mask-size: contain;
+      animation: preloadFlashPop 2.8s ease-in-out infinite;
+    }
+    @keyframes preloadLogoGlow{
+      0%, 100%{
+        transform: scale(1);
+        opacity:.94;
+        filter: brightness(.95) contrast(1.02) drop-shadow(0 10px 22px rgba(255,255,255,.04));
+      }
+      22%{
+        transform: scale(1.006);
+        opacity:1;
+        filter: brightness(1.03) contrast(1.04) drop-shadow(0 0 18px rgba(255,255,255,.10)) drop-shadow(0 14px 28px rgba(255,255,255,.06));
+      }
+      54%{
+        transform: scale(1.012);
+        opacity:1;
+        filter: brightness(1.12) contrast(1.05) drop-shadow(0 0 24px rgba(255,255,255,.16)) drop-shadow(0 18px 34px rgba(255,255,255,.08));
+      }
+      76%{
+        transform: scale(1.004);
+        opacity:.98;
+        filter: brightness(1.01) contrast(1.03) drop-shadow(0 0 12px rgba(255,255,255,.08));
+      }
+    }
+    @keyframes preloadGlowBurst{
+      0%, 14%, 100%{
+        opacity:0;
+        transform: scale(.92);
+      }
+      24%{
+        opacity:.35;
+        transform: scale(1.01);
+      }
+      38%{
+        opacity:.08;
+        transform: scale(1.06);
+      }
+      58%{
+        opacity:.48;
+        transform: scale(1.02);
+      }
+      72%{
+        opacity:.10;
+        transform: scale(1.08);
+      }
+    }
+    @keyframes preloadFlashPop{
+      0%, 32%, 100%{
+        opacity:0;
+        transform: scale(.94);
+      }
+      40%{
+        opacity:.18;
+        transform: scale(1.02);
+      }
+      47%{
+        opacity:.02;
+        transform: scale(1.06);
+      }
+      63%{
+        opacity:.28;
+        transform: scale(1.01);
+      }
+      68%{
+        opacity:.04;
+        transform: scale(1.05);
+      }
+    }
+    @media (max-width: 640px){
+      .preloader__logoWrap{ width:min(72vw, 280px); }
+    }
+
+    .logoTransfer{
+      position:fixed;
+      z-index:240;
+      margin:0;
+      object-fit:contain;
+      pointer-events:none;
+      will-change: transform, opacity, filter;
+      transform-origin: top left;
+      transition:
+        transform 420ms cubic-bezier(.18,.86,.2,1),
+        opacity 420ms ease,
+        filter 420ms ease;
+      filter: brightness(1.04) contrast(1.03) drop-shadow(0 12px 28px rgba(255,255,255,.12));
+    }
+
+    /* Mobile / tablet: fallback lineare senza scroll-jack */
+    @media (max-width: 1023px){
+      body{ overflow-x:hidden; }
+
+      .mobileNote{
+        padding: 12px 16px 0;
+      }
+
+      .splitSpacer{
+        height:auto !important;
+      }
+      .splitStage{
+        position:relative !important;
+        top:auto !important;
+        height:auto !important;
+        overflow:visible !important;
+      }
+      .startCover{
+        display:none !important;
+      }
+      .firstFxBackdrop{
+        display:none !important;
+      }
+      .splitGrid{
+        grid-template-columns: 1fr !important;
+        height:auto !important;
+      }
+      .rightPane{
+        display:none !important;
+      }
+      .leftPane{
+        height:auto !important;
+        overflow:visible !important;
+      }
+      .rail{
+        position:relative !important;
+        top:auto !important;
+        height:auto !important;
+        transform:none !important;
+        transition:none !important;
+      }
+      .page{
+        height:auto !important;
+        min-height:auto !important;
+        padding: 28px 16px 20px !important;
+        border-bottom: 1px solid rgba(42,41,38,.10);
+        align-items:flex-start;
+      }
+      .pageInner{
+        margin-left:0 !important;
+        width:100% !important;
+      }
+      .pageTitle{
+        font-size: clamp(28px, 7vw, 40px);
+      }
+      .pageText{
+        font-size:15px;
+        line-height:1.55;
+      }
+      .pageLink{
+        font-size:14px;
+      }
+      .page.is-join{
+        padding:0 !important;
+        min-height: 62svh !important;
+        border-bottom: none;
+        background:none !important;
+        position:relative;
+      }
+      .page.is-join .joinOverlay{
+        display:none !important;
+      }
+      .mStackImg{
+        width:100%;
+        border-radius: 14px;
+        overflow:hidden;
+        background:#000;
+        margin-top:14px;
+      }
+      .mStackImg img,
+      .mStackImg video{
+        width:100%;
+        height:auto;
+        display:block;
+        object-fit:cover;
+      }
+      .mStackImg .tagliGallery{
+        height:min(66svh, 560px);
+        min-height:320px;
+      }
+      .mStackImg .tagliGallery__slide .videoLayer{
+        height:100%;
+      }
+      .mStackImg .tagliGallery__slide > img{
+        height:100%;
+        padding:clamp(12px, 4vw, 26px);
+      }
+      .mStackImg .tagliGallery__controls{
+        inset:0;
+      }
+      .mStackImg .tagliGallery__nav{
+        width:34px;
+        height:34px;
+      }
+      .mStackImg .tagliGallery__nav[data-gallery-prev]{ left:10px; }
+      .mStackImg .tagliGallery__nav[data-gallery-next]{ right:10px; }
+      .mStackImg .tagliGallery__dot.is-active{
+        width:16px;
+      }
+      .mStackHero{
+        width:100%;
+        min-height: 62svh;
+        background:#000;
+      }
+      .mStackHero img{
+        width:100%;
+        height:62svh;
+        min-height:420px;
+        object-fit:cover;
+        display:block;
+      }
+      .contactScreen{
+        padding: 0 16px;
+      }
+      .contactScreen__inner{
+        padding: 72px 0 20px;
+      }
+      .waFab{
+        width:54px;
+        height:54px;
+        right: 14px;
+        bottom: 14px;
+      }
+      .waFab svg{
+        width:28px;
+        height:28px;
+      }
+      .topBar{
+        display:none !important;
+      }
+    }
+    @media (max-width: 420px){
+      .tagliGallery__controls{
+        inset:0;
+      }
+      .tagliGallery__nav{
+        width:34px;
+        height:34px;
+      }
+      .tagliGallery__nav[data-gallery-prev]{ left:8px; }
+      .tagliGallery__nav[data-gallery-next]{ right:8px; }
+      .tagliGallery__dot.is-active{
+        width:14px;
+      }
+    }
+
+  </style>
+</head>
+
+<body class="is-preloading">
+  <div class="preloader" id="preloader" aria-label="Caricamento">
+    <div class="preloader__logoWrap" aria-hidden="true">
+      <div class="preloader__flash"></div>
+      <img class="preloader__logo" id="preloaderLogo" src="img/immlogo.png" alt="Da Tizi logo" />
+      <div class="preloader__shine"></div>
+    </div>
+  </div>
+
+  <div class="topBar is-preload-hidden" id="topBar" aria-label="Barra principale">
+    <div class="topBar__inner">
+      <div class="topBar__brand">
+        <img class="topBar__logo" id="topBarLogo" src="img/immlogo.png" alt="Da Tizi" />
+      </div>
+      <nav class="topBar__nav" aria-label="Azioni rapide">
+        <a class="topBar__link" href="#tagli">Servizi</a>
+        <a class="topBar__link topBar__link--cta" href="#contatti">Prenota</a>
+      </nav>
+    </div>
+  </div>
+
+  <a class="waFab" href="https://wa.me/393911480392" target="_blank" rel="noopener" aria-label="Contattaci su WhatsApp">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M19.11 17.34c-.27-.13-1.59-.78-1.84-.87-.25-.09-.43-.13-.62.13-.18.27-.71.87-.87 1.05-.16.18-.32.2-.59.07-.27-.13-1.12-.41-2.14-1.31-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.32.41-.47.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.47-.07-.13-.62-1.49-.85-2.04-.22-.53-.45-.46-.62-.47h-.53c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.27 0 1.33.97 2.62 1.11 2.8.13.18 1.9 2.9 4.6 4.06.64.28 1.14.44 1.53.56.64.2 1.22.17 1.68.1.51-.08 1.59-.65 1.81-1.28.22-.62.22-1.15.16-1.28-.07-.12-.25-.2-.52-.33Z"/>
+      <path d="M27.29 4.69A15.8 15.8 0 0 0 16.04 0C7.21 0 .03 7.18.03 16c0 2.82.74 5.57 2.14 7.99L0 32l8.23-2.14A15.93 15.93 0 0 0 16.03 32h.01c8.82 0 16-7.18 16-16 0-4.27-1.66-8.28-4.75-11.31Zm-11.25 24.6h-.01a13.2 13.2 0 0 1-6.73-1.85l-.48-.28-4.88 1.27 1.3-4.76-.31-.49a13.17 13.17 0 0 1-2.02-7.08c0-7.3 5.94-13.24 13.25-13.24 3.54 0 6.86 1.38 9.36 3.88a13.14 13.14 0 0 1 3.87 9.36c0 7.3-5.94 13.24-13.24 13.24Z"/>
+    </svg>
+  </a>
+
+  <main>
+    <!-- SPLIT A SCATTI -->
+    <section class="splitWrap" id="tagli" aria-label="Sezioni a scatti">
+
+      <div class="mobileNote">
+        Su mobile lo scroll resta normale. L'effetto "a scatti" e' pensato per desktop (come Argentiera).
+      </div>
+
+      <!-- Spacer + Stage sticky -->
+      <div class="splitSpacer" id="splitSpacer" style="--steps:4">
+        <div class="splitStage is-step-0" id="splitStage">
+          <div class="firstFxBackdrop" aria-hidden="true"></div>
+          <div class="startCover" style="--start-cover:url('img/fotopag4.jpg');" aria-hidden="true"></div>
+          <div class="splitGrid" style="--steps:4">
+
+            <!-- SINISTRA: rail che si muove (normale) -->
+            <div class="leftPane">
+              <div class="rail" id="leftRail" style="--steps:4; transform:translateY(0px);">
+
+                <!-- P1: FOTO INTERA (split join) -->
+                <section class="page is-join" data-step="0" data-join="img/fotopag7.jpeg" style="background-image:url('img/fotopag7.jpeg');background-size:200% 100%;background-position:left center;background-repeat:no-repeat;">
+                  <div class="joinOverlay"></div>
+                </section>
+
+                <!-- P2: SERVIZI -->
+                <section class="page" data-step="1">
+                  <div class="pageInner">
+                    <p class="pageKicker">Servizi</p>
+                    <h2 class="pageTitle">Servizi</h2>
+                    <p class="pageText">Taglio, barba e cura dei dettagli. Una selezione essenziale e pulita.</p>
+                    <a class="pageLink" href="#contatti">Prenota <span>&rarr;</span></a>
+                  </div>
+                </section>
+
+                <!-- P3: I NOSTRI TAGLI -->
+                <section class="page" data-step="2">
+                  <div class="pageInner">
+                    <p class="pageKicker">Gallery</p>
+                    <h2 class="pageTitle">I nostri tagli</h2>
+                    <p class="pageText">Una selezione di look: texture, sfumature e linee pulite.</p>
+                  </div>
+                </section>
+
+                <!-- P4: CHI SONO -->
+                <section class="page" data-step="3">
+                  <div class="pageInner">
+                    <p class="pageKicker">Studio</p>
+                    <h2 class="pageTitle">Chi sono</h2>
+                    <p class="pageText">Cura, precisione e un approccio semplice: ti ascolto e costruisco il look su misura.</p>
+                  </div>
+                </section>
+
+
+              </div>
+            </div>
+
+            <!-- DESTRA: rail che si muove AL CONTRARIO -->
+            <div class="rightPane">
+              <div class="rail" id="rightRail" style="--steps:4; transform:translateY(calc(-3 * 100vh));">
+
+                <!-- step 3 (CHI SONO) -->
+                <div class="imgPage" data-step="3">
+                  <img src="img/fotopag5.jpeg" alt="Chi sono">
+                </div>
+
+                <!-- step 2 (I NOSTRI TAGLI) -->
+                <div class="imgPage" data-step="2">
+                  <!-- Predisposizione gallery pannello destro: 1 video + 5 foto -->
+                  <div class="tagliGallery" data-gallery="tagli" data-count="6" data-active="0">
+                    <div class="tagliGallery__slide is-active" data-media-index="0" data-media-type="video">
+                      <div class="videoLayer">
+                        <video class="videoBg" src="img/videotagli1.mp4" poster="https://images.unsplash.com/photo-1517832606299-7ae9b720a186?auto=format&fit=crop&w=2200&q=80" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
+                        <video class="videoMain" src="img/videotagli1.mp4" poster="https://images.unsplash.com/photo-1517832606299-7ae9b720a186?auto=format&fit=crop&w=2200&q=80" autoplay muted loop playsinline preload="metadata" aria-label="I nostri tagli"></video>
+                      </div>
+                    </div>
+                    <div class="tagliGallery__slide" data-media-index="1" data-media-type="image" style="--tagli-bg:url('img/immtaglio1.jpeg');">
+                      <img src="img/immtaglio1.jpeg" alt="Tagli foto 1">
+                    </div>
+                    <div class="tagliGallery__slide" data-media-index="2" data-media-type="image" style="--tagli-bg:url('img/immtaglio2.jpeg');">
+                      <img src="img/immtaglio2.jpeg" alt="Tagli foto 2">
+                    </div>
+                    <div class="tagliGallery__slide" data-media-index="3" data-media-type="image" style="--tagli-bg:url('img/immtaglio3.jpeg');">
+                      <img src="img/immtaglio3.jpeg" alt="Tagli foto 3">
+                    </div>
+                    <div class="tagliGallery__slide" data-media-index="4" data-media-type="image" style="--tagli-bg:url('img/immtaglio4.jpeg');">
+                      <img src="img/immtaglio4.jpeg" alt="Tagli foto 4">
+                    </div>
+                    <div class="tagliGallery__slide" data-media-index="5" data-media-type="image" style="--tagli-bg:url('img/immtaglio4.jpeg');">
+                      <img src="img/immtaglio4.jpeg" alt="Tagli foto 5">
+                    </div>
+                    <div class="tagliGallery__controls" aria-label="Controlli galleria tagli">
+                      <button class="tagliGallery__nav" type="button" data-gallery-prev aria-label="Foto precedente">‹</button>
+                      <div class="tagliGallery__dots" role="tablist" aria-label="Seleziona media">
+                        <button class="tagliGallery__dot is-active" type="button" data-gallery-dot="0" aria-label="Media 1"></button>
+                        <button class="tagliGallery__dot" type="button" data-gallery-dot="1" aria-label="Media 2"></button>
+                        <button class="tagliGallery__dot" type="button" data-gallery-dot="2" aria-label="Media 3"></button>
+                        <button class="tagliGallery__dot" type="button" data-gallery-dot="3" aria-label="Media 4"></button>
+                        <button class="tagliGallery__dot" type="button" data-gallery-dot="4" aria-label="Media 5"></button>
+                        <button class="tagliGallery__dot" type="button" data-gallery-dot="5" aria-label="Media 6"></button>
+                      </div>
+                      <button class="tagliGallery__nav" type="button" data-gallery-next aria-label="Foto successiva">›</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- step 1 (SERVIZI) -->
+                <div class="imgPage" data-step="1">
+                  <img src="img/immservizi.jpeg" alt="Servizi">
+                </div>
+
+                <!-- step 0 (FOTO INTERA split) -->
+                <div class="imgPage" data-step="0">
+                  <div class="joinRight" style="height:var(--vh, 100vh);background-image:url('img/fotopag7.jpeg');background-size:200% 100%;background-position:right center;background-repeat:no-repeat;"></div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTATTI -->
+    <section id="contatti" class="contactScreen" aria-label="Contatti">
+      <div class="contactScreen__inner">
+        <div class="contactScreen__main">
+          <div class="contactBox">
+            <div class="kicker" style="color:var(--fg); opacity:.7;">Contatti</div>
+            <h2 class="pageTitle" style="margin:8px 0 10px; color:var(--fg);">Dove siamo</h2>
+            <p class="muted" style="margin:0 0 8px;">Ci trovi in Via Oberdan 37, Colle di Val d'Elsa.</p>
+
+            <div class="contactMap" aria-label="Mappa Google">
+              <div class="mapConsent" data-map-consent>
+                <strong>Mappa Google disattivata</strong>
+                <p>Per vedere la mappa serve il consenso ai servizi esterni, perche Google Maps puo trattare dati tecnici del dispositivo.</p>
+                <button class="btn btn--solid privacyOpenPrefs" type="button" style="background:#0b0b0b;color:#fff;border-color:#0b0b0b;">Gestisci preferenze</button>
+              </div>
+              <iframe
+                title="Mappa - Via Oberdan 37, Colle di Val d'Elsa"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                hidden
+                data-src="https://maps.google.com/maps?q=Via%20Oberdan%2037%2C%20Colle%20di%20Val%20d%27Elsa&z=16&output=embed">
+              </iframe>
+            </div>
+
+            <div class="contactMeta" aria-label="Dettagli contatti">
+              <div><strong>Indirizzo:</strong> Via Oberdan 37, Colle di Val d'Elsa</div>
+              <div><strong>Telefono:</strong> +39 3911480392</div>
+              <div><strong>Orari:</strong> Lun-Sab 09:00 - 19:00</div>
+            </div>
+
+            <div class="contactActions">
+              <a class="btn btn--solid" style="background:#0b0b0b;color:#fff;border-color:#0b0b0b;" href="tel:+393911480392">Chiama</a>
+              <a class="btn" style="border-color:rgba(11,11,11,.22); background:#fff; color:#0b0b0b;" href="https://wa.me/393911480392" target="_blank" rel="noopener">WhatsApp</a>
+              <a class="btn" style="border-color:rgba(11,11,11,.22); background:#fff; color:#0b0b0b;" href="https://www.google.com/maps/search/?api=1&query=Via%20Oberdan%2037%2C%20Colle%20di%20Val%20d%27Elsa" target="_blank" rel="noopener">Apri in Maps</a>
+            </div>
+          </div>
+        </div>
+
+        <footer class="footer" aria-label="Footer">
+          <div class="footer__inner">
+            <div><strong>Da Tizi</strong> - Hair Studio</div>
+            <div class="footlinks">
+              <button type="button" data-legal-open="privacy">Privacy</button>
+              <button type="button" data-legal-open="cookie">Cookie</button>
+              <button type="button" data-legal-open="termini">Termini di servizio</button>
+              <button type="button" class="privacyOpenPrefs">Preferenze privacy</button>
+            </div>
+            <div class="muted">P. IVA 00000000000 - Da Tizi - Hair Studio</div>
+          </div>
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <div class="privacyBanner" id="privacyBanner" role="region" aria-label="Preferenze cookie" hidden>
+    <div class="privacyBanner__inner">
+      <div>
+        <h2>Privacy e cookie</h2>
+        <p>Usiamo solo elementi tecnici necessari. La mappa Google viene caricata solo se accetti i servizi esterni. Puoi cambiare scelta in ogni momento dal footer.</p>
+      </div>
+      <div class="privacyBanner__actions">
+        <button class="privacyBtn" type="button" data-consent-reject>Rifiuta</button>
+        <button class="privacyBtn" type="button" data-consent-settings>Preferenze</button>
+        <button class="privacyBtn privacyBtn--solid" type="button" data-consent-accept>Accetta</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="privacyModal" id="privacyPrefsModal" role="dialog" aria-modal="true" aria-labelledby="privacyPrefsTitle" hidden>
+    <div class="privacyModal__panel">
+      <div class="privacyModal__head">
+        <h2 id="privacyPrefsTitle">Preferenze privacy</h2>
+        <button class="privacyModal__close" type="button" data-privacy-close aria-label="Chiudi">x</button>
+      </div>
+      <div class="privacyModal__body">
+        <div class="privacyChoice">
+          <div>
+            <strong>Cookie tecnici necessari</strong>
+            <p>Servono per ricordare le preferenze privacy e far funzionare correttamente il sito. Sono sempre attivi.</p>
+          </div>
+          <input type="checkbox" checked disabled aria-label="Cookie tecnici sempre attivi">
+        </div>
+        <label class="privacyChoice">
+          <div>
+            <strong>Servizi esterni</strong>
+            <p>Autorizza il caricamento della mappa Google incorporata nella sezione contatti. Google puo ricevere dati tecnici, come indirizzo IP e informazioni sul browser.</p>
+          </div>
+          <input id="externalServicesConsent" type="checkbox">
+        </label>
+      </div>
+      <div class="privacyModal__foot">
+        <div class="privacyActions">
+          <button class="privacyBtn privacyBtn--light" type="button" data-consent-save>Salva preferenze</button>
+          <button class="privacyBtn privacyBtn--light" type="button" data-consent-accept-modal>Accetta tutto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="privacyModal" id="legalModal" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle" hidden>
+    <div class="privacyModal__panel">
+      <div class="privacyModal__head">
+        <h2 id="legalModalTitle">Privacy</h2>
+        <button class="privacyModal__close" type="button" data-legal-close aria-label="Chiudi">x</button>
+      </div>
+      <div class="privacyModal__body" data-legal-content></div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================
+    // SPLIT A SCATTI (DESKTOP)
+    // ==========================
+    const splitSpacer = document.getElementById("splitSpacer");
+    const splitStage  = document.getElementById("splitStage");
+    const topBarEl    = document.getElementById("topBar");
+    const topBarLogoEl = document.getElementById("topBarLogo");
+    const preloaderEl = document.getElementById("preloader");
+    const preloaderLogoEl = document.getElementById("preloaderLogo");
+    const contattiEl  = document.getElementById("contatti");
+    const contactBoxEl = document.querySelector("#contatti .contactBox");
+    const leftRail    = document.getElementById("leftRail");
+    const rightRail   = document.getElementById("rightRail");
+
+    const steps = 4; // P1..P4
+    let stepIndex = 0;
+    let isLock = false;
+    let isSnapLock = false;
+    let isPreloading = true;
+    let isLogoTransfer = false;
+    let isTopBarDelay = false;
+    const PRELOAD_MS = 3200;
+    const TOPBAR_DELAY_MS = 280;
+    const STEP_LOCK_MS = 1250;
+    const SNAP_LOCK_MS = 800;
+    const FIRST_SPLIT_TRANSITION_MS = 1250;
+    const WHEEL_MOMENTUM_GUARD_MS = 240;
+    const STAGE_EPS = 2;
+
+    // Accumulo wheel per evitare micro-tick che cambiano pagina
+    const WHEEL_THRESHOLD = 70; // ~medio
+    let wheelAcc = 0;
+    let wheelLastDir = 0;
+    let lastScrollY = window.scrollY || 0;
+    let wheelBlockedUntil = 0;
+    function resetWheelAcc(){
+      wheelAcc = 0;
+      wheelLastDir = 0;
+    }
+    function consumeWheelThreshold(delta){
+      const dir = delta > 0 ? 1 : (delta < 0 ? -1 : 0);
+      if(dir === 0) return 0;
+      if(dir !== wheelLastDir){
+        wheelAcc = 0;
+        wheelLastDir = dir;
+      }
+      wheelAcc += Math.abs(delta);
+      if(wheelAcc < WHEEL_THRESHOLD) return 0;
+      wheelAcc = 0;
+      return dir;
+    }
+
+
+    function isDesktop(){
+      return window.matchMedia("(min-width: 1024px)").matches;
+    }
+    function syncViewportHeightVar(){
+      document.documentElement.style.setProperty("--vh", `${window.innerHeight}px`);
+    }
+    function restartVideosIn(el){
+      if(!el) return;
+      el.querySelectorAll("video").forEach((v) => {
+        try{ v.currentTime = 0; }catch(_e){}
+        const p = v.play && v.play();
+        if(p && typeof p.catch === "function") p.catch(() => {});
+      });
+    }
+    function initTagliGalleries(root = document){
+      const galleries = Array.from(root.querySelectorAll(".tagliGallery"));
+      galleries.forEach((gallery) => {
+        if(gallery.dataset.galleryInit === "1") return;
+        gallery.dataset.galleryInit = "1";
+
+        const slides = Array.from(gallery.querySelectorAll(".tagliGallery__slide"));
+        const dots = Array.from(gallery.querySelectorAll("[data-gallery-dot]"));
+        const prevBtn = gallery.querySelector("[data-gallery-prev]");
+        const nextBtn = gallery.querySelector("[data-gallery-next]");
+
+        function pauseInactiveVideos(activeIndex){
+          slides.forEach((slide, idx) => {
+            const videos = slide.querySelectorAll("video");
+            videos.forEach((v) => {
+              if(idx === activeIndex){
+                try{ v.currentTime = 0; }catch(_e){}
+                const p = v.play && v.play();
+                if(p && typeof p.catch === "function") p.catch(() => {});
+              }else{
+                try{ v.pause(); }catch(_e){}
+              }
+            });
+          });
+        }
+
+        function setGalleryIndex(nextIndex){
+          if(!slides.length) return;
+          const max = slides.length - 1;
+          const i = ((nextIndex % (max + 1)) + (max + 1)) % (max + 1);
+          gallery.dataset.active = String(i);
+          slides.forEach((slide, idx) => {
+            slide.classList.toggle("is-active", idx === i);
+          });
+          dots.forEach((dot, idx) => {
+            dot.classList.toggle("is-active", idx === i);
+            dot.setAttribute("aria-pressed", idx === i ? "true" : "false");
+          });
+          pauseInactiveVideos(i);
+        }
+
+        prevBtn && prevBtn.addEventListener("click", () => {
+          setGalleryIndex(Number(gallery.dataset.active || 0) - 1);
+        });
+        nextBtn && nextBtn.addEventListener("click", () => {
+          setGalleryIndex(Number(gallery.dataset.active || 0) + 1);
+        });
+        dots.forEach((dot) => {
+          dot.addEventListener("click", () => {
+            const i = Number(dot.getAttribute("data-gallery-dot"));
+            if(Number.isFinite(i)) setGalleryIndex(i);
+          });
+        });
+
+        setGalleryIndex(Number(gallery.dataset.active || 0));
+      });
+    }
+    function buildMobileStack(){
+      if(isDesktop()) return;
+      if(document.documentElement.dataset.mobileStackBuilt === "1") return;
+      document.documentElement.dataset.mobileStackBuilt = "1";
+
+      const pages = Array.from(leftRail.querySelectorAll(".page[data-step]"));
+      pages.forEach((page) => {
+        const step = page.getAttribute("data-step");
+        const joinUrl = page.getAttribute("data-join");
+
+        if(joinUrl){
+          const wrap = document.createElement("div");
+          wrap.className = "mStackHero";
+          const img = document.createElement("img");
+          img.src = joinUrl;
+          img.alt = "Da Tizi";
+          img.loading = "eager";
+          wrap.appendChild(img);
+          page.appendChild(wrap);
+          return;
+        }
+
+        const sourceGallery = rightRail.querySelector(`.imgPage[data-step="${step}"] .tagliGallery`);
+        if(sourceGallery){
+          const wrap = document.createElement("div");
+          wrap.className = "mStackImg";
+          const galleryClone = sourceGallery.cloneNode(true);
+          galleryClone.dataset.active = "0";
+          galleryClone.querySelectorAll(".tagliGallery__slide").forEach((slide, idx) => {
+            slide.classList.toggle("is-active", idx === 0);
+          });
+          galleryClone.querySelectorAll(".tagliGallery__dot").forEach((dot, idx) => {
+            dot.classList.toggle("is-active", idx === 0);
+            dot.setAttribute("aria-pressed", idx === 0 ? "true" : "false");
+          });
+          wrap.appendChild(galleryClone);
+          page.appendChild(wrap);
+          return;
+        }
+
+        const sourceMedia = rightRail.querySelector(`.imgPage[data-step="${step}"] .videoMain, .imgPage[data-step="${step}"] img, .imgPage[data-step="${step}"] video`);
+        if(!sourceMedia) return;
+
+        const wrap = document.createElement("div");
+        wrap.className = "mStackImg";
+        if(sourceMedia.tagName === "VIDEO"){
+          const video = document.createElement("video");
+          video.src = sourceMedia.currentSrc || sourceMedia.src;
+          video.poster = sourceMedia.poster || "";
+          video.muted = true;
+          video.loop = true;
+          video.autoplay = true;
+          video.playsInline = true;
+          video.preload = "metadata";
+          video.setAttribute("playsinline", "");
+          video.setAttribute("muted", "");
+          wrap.appendChild(video);
+        }else{
+          const img = document.createElement("img");
+          img.src = sourceMedia.currentSrc || sourceMedia.src;
+          img.alt = sourceMedia.alt || "";
+          img.loading = "lazy";
+          wrap.appendChild(img);
+        }
+        page.appendChild(wrap);
+      });
+    }
+
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+    function splitTopAbs(){
+      const r = splitSpacer.getBoundingClientRect();
+      return window.scrollY + r.top;
+    }
+    function splitStepTopAbs(i){
+      return Math.round(splitTopAbs() + (clamp(i, 0, steps - 1) * window.innerHeight));
+    }
+    function contattiTopAbs(){
+      if(!contattiEl) return Infinity;
+      const r = contattiEl.getBoundingClientRect();
+      return window.scrollY + r.top;
+    }
+    function contattiSnapTopAbs(){
+      if(contactBoxEl){
+        const r = contactBoxEl.getBoundingClientRect();
+        return window.scrollY + r.top;
+      }
+      return contattiTopAbs();
+    }
+    function syncScrollToStep(i){
+      if(!isDesktop()) return;
+      const target = splitStepTopAbs(i);
+      // Sync immediato della scrollbar: evita che il thumb resti fermo e poi salti
+      window.scrollTo(0, target);
+    }
+    function smoothScrollToStep(i){
+      if(!isDesktop()) return;
+      const target = splitStepTopAbs(i);
+      window.scrollTo({ top: target, behavior:"smooth" });
+    }
+    function updateTopBar(){
+      if(!topBarEl) return;
+      if(!isDesktop()){
+        topBarEl.classList.add("is-hidden");
+        return;
+      }
+      if(isPreloading || isLogoTransfer || isTopBarDelay){
+        topBarEl.classList.add("is-preload-hidden");
+        return;
+      }
+      topBarEl.classList.remove("is-preload-hidden");
+      topBarEl.classList.toggle("is-hidden", stepIndex !== 0);
+    }
+
+    function applyJoinForStep(i){
+      const page = leftRail.querySelector(`.page[data-step="${i}"]`);
+      const joinUrl = page && page.classList.contains("is-join") ? page.getAttribute("data-join") : null;
+      if(!joinUrl) return;
+
+      page.style.backgroundImage = `url("${joinUrl}")`;
+      page.style.backgroundSize = "200% 100%";
+      page.style.backgroundPosition = "left center";
+      page.style.backgroundRepeat = "no-repeat";
+
+      const rightJoin = rightRail.querySelector(`.imgPage[data-step="${i}"] .joinRight`);
+      if(rightJoin){
+        rightJoin.style.backgroundImage = `url("${joinUrl}")`;
+        rightJoin.style.backgroundSize = "200% 100%";
+        rightJoin.style.backgroundPosition = "right center";
+        rightJoin.style.backgroundRepeat = "no-repeat";
+      }
+    }
+    function setStep(i){
+      const prevStep = stepIndex;
+      stepIndex = clamp(i, 0, steps - 1);
+      const isFirstSplitTransition =
+        (prevStep === 0 && stepIndex === 1) ||
+        (prevStep === 1 && stepIndex === 0);
+      const stepTransitionMs = isFirstSplitTransition ? FIRST_SPLIT_TRANSITION_MS : STEP_LOCK_MS;
+
+      const vh = window.innerHeight;
+
+      // Scroll inverso: sinistra sale, destra scende (rail ordinato al contrario)
+      const yLeft  = -(stepIndex * vh);
+      const yRight = -((steps - 1 - stepIndex) * vh);
+
+      leftRail.style.transitionDuration = `${stepTransitionMs}ms`;
+      rightRail.style.transitionDuration = `${stepTransitionMs}ms`;
+      leftRail.style.transform  = `translateY(${yLeft}px)`;
+      rightRail.style.transform = `translateY(${yRight}px)`;
+      applyJoinForStep(stepIndex);
+
+      splitStage.classList.toggle("is-step-0", stepIndex === 0);
+      updateTopBar();
+
+      // Quando rientri in "I nostri tagli", il video deve sempre ripartire da capo.
+      if(stepIndex === 2){
+        const activeTagliSlide = rightRail.querySelector('.imgPage[data-step="2"] .tagliGallery__slide.is-active');
+        restartVideosIn(activeTagliSlide);
+      }
+
+      return stepTransitionMs;
+    }
+
+    // Quando sei dentro lo stage, intercetto wheel e faccio "scatti"
+    function stageIsActive(){
+      const r = splitSpacer.getBoundingClientRect();
+      // attivo quando lo spacer "copre" la viewport
+      return r.top <= STAGE_EPS && r.bottom >= (window.innerHeight - STAGE_EPS);
+    }
+
+    function goNext(){
+      if(isLock) return;
+      resetWheelAcc();
+      isLock = true;
+      const lockMs = setStep(stepIndex + 1);
+      syncScrollToStep(stepIndex);
+      wheelBlockedUntil = (performance.now ? performance.now() : Date.now()) + WHEEL_MOMENTUM_GUARD_MS;
+      setTimeout(() => { isLock = false; }, lockMs || STEP_LOCK_MS);
+    }
+    function goPrev(){
+      if(isLock) return;
+      resetWheelAcc();
+      isLock = true;
+      const lockMs = setStep(stepIndex - 1);
+      syncScrollToStep(stepIndex);
+      wheelBlockedUntil = (performance.now ? performance.now() : Date.now()) + WHEEL_MOMENTUM_GUARD_MS;
+      setTimeout(() => { isLock = false; }, lockMs || STEP_LOCK_MS);
+    }
+
+    function onWheel(e){
+      if(!isDesktop()) return;
+      if(!stageIsActive()) return;
+
+      // blocco lo scroll "nativo"
+      e.preventDefault();
+
+      const delta = e.deltaY;
+      const dir = delta > 0 ? 1 : (delta < 0 ? -1 : 0);
+      if(dir === 0) return;
+
+      // reset accumulo se cambia direzione
+      if(dir !== wheelLastDir){
+        wheelAcc = 0;
+        wheelLastDir = dir;
+      }
+
+      wheelAcc += Math.abs(delta);
+      if(wheelAcc >= WHEEL_THRESHOLD){
+        wheelAcc = 0;
+        if(dir === 1) goNext();
+        else goPrev();
+      }
+    }
+
+    // Keyboard (comodo per test)
+    function onKey(e){
+      if(isPreloading) return;
+      if(!isDesktop()) return;
+      if(!stageIsActive()) return;
+
+      if(e.key === "ArrowDown" || e.key === "PageDown" || e.key === " "){
+        e.preventDefault();
+        goNext();
+      }
+      if(e.key === "ArrowUp" || e.key === "PageUp"){
+        e.preventDefault();
+        goPrev();
+      }
+    }
+
+    // Quando esci dallo stage verso il basso:
+    // faccio "snap" alla fine della sezione (cosi non rimani in mezzo).
+    function onScroll(){
+      if(!isDesktop()) return;
+
+      const r = splitSpacer.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const splitTop = splitTopAbs();
+      const y = window.scrollY;
+      const scrollingDown = y > (lastScrollY + 1);
+      const lastStepTop = splitStepTopAbs(steps - 1);
+      const contattiSnapTop = contattiSnapTopAbs();
+
+      // Touchpad inertia guard: durante la transizione di step resta ancorato alla pagina corrente
+      if(isLock && r.top <= STAGE_EPS && r.bottom >= (vh - STAGE_EPS)){
+        syncScrollToStep(stepIndex);
+        lastScrollY = window.scrollY;
+        return;
+      }
+
+      // In discesa, evita lo spazio intermedio visibile tra "Chi sono" e il blocco contatti.
+      if(
+        !isPreloading &&
+        !isLock &&
+        !isSnapLock &&
+        scrollingDown &&
+        stepIndex === (steps - 1) &&
+        y > (lastStepTop + STAGE_EPS) &&
+        y < (contattiSnapTop - STAGE_EPS)
+      ){
+        resetWheelAcc();
+        isSnapLock = true;
+        window.scrollTo(0, Math.round(contattiSnapTop));
+        lastScrollY = Math.round(contattiSnapTop);
+        window.setTimeout(() => { isSnapLock = false; }, 220);
+        return;
+      }
+
+      // Entrando dall'alto: se scendi e arrivi allo stage, imposto step 0
+      if(r.top <= 0 && r.bottom > vh && stepIndex === 0){
+        setStep(0);
+      }
+
+      // Mantiene i rail allineati alla posizione reale dello scroll (trackpad/scrollbar/resize)
+      if(!isLock && !isSnapLock && r.top <= STAGE_EPS && r.bottom >= (vh - STAGE_EPS)){
+        const rawStep = Math.round((window.scrollY - splitTop) / Math.max(vh, 1));
+        const nextStep = clamp(rawStep, 0, steps - 1);
+        if(nextStep !== stepIndex){
+          // Anti-skip: anche con scroll forte/inerzia si muove di una pagina per volta
+          const singleStepTarget = stepIndex + Math.sign(nextStep - stepIndex);
+          const lockMs = setStep(singleStepTarget);
+          syncScrollToStep(stepIndex);
+          isLock = true;
+          window.setTimeout(() => { isLock = false; }, lockMs || STEP_LOCK_MS);
+        }
+      }
+      updateTopBar();
+      lastScrollY = y;
+
+      // Se sei alla fine step e provi a scendere ancora, lasci scorrere la pagina:
+      // qui non serve fare nulla: il wheel non viene piu prevenuto perche stageIsActive resta true,
+      // ma tu sei "bloccato" sul last step: per uscire basta scrollare e io NON prevengo?
+      // quindi: quando last step e scroll down, NON bloccare piu il wheel.
+      // (gestito in onWheel sotto)
+    }
+
+    // Snap tra split / contatti / top pagina
+    function onWheelSmart(e){
+      if(isPreloading){
+        e.preventDefault();
+        return;
+      }
+      if(!isDesktop()) return;
+
+      const delta = e.deltaY;
+      const contattiTop = contattiSnapTopAbs();
+      const contattiSectionTop = contattiTopAbs();
+      const lastStepTop = splitStepTopAbs(steps - 1);
+      const now = performance.now ? performance.now() : Date.now();
+      const y = window.scrollY || 0;
+
+      // Se siamo in lock (transizioni/snap), blocco totale per evitare salti
+      if(isSnapLock || isLock){
+        e.preventDefault();
+        return;
+      }
+      if(now < wheelBlockedUntil){
+        e.preventDefault();
+        return;
+      }
+
+      // Dentro i contatti lo scroll deve restare nativo, cosi si arriva anche al footer/privacy.
+      // Solo dal bordo superiore dei contatti uno scroll verso l'alto torna a "Chi sono".
+      if(contattiEl && y >= (contattiSectionTop - STAGE_EPS)){
+        if(delta < 0 && y <= (contattiSectionTop + STAGE_EPS)){
+          e.preventDefault();
+          resetWheelAcc();
+          isSnapLock = true;
+          window.scrollTo(0, splitStepTopAbs(steps - 1));
+          setStep(steps - 1);
+          window.setTimeout(() => { isSnapLock = false; }, SNAP_LOCK_MS);
+        }
+        return;
+      }
+
+      // Eventuale zona intermedia sotto "Chi sono": mantieni la stessa sensibilita' delle altre pagine
+      if(delta < 0 && window.scrollY > (lastStepTop + STAGE_EPS)){
+        e.preventDefault();
+        if(consumeWheelThreshold(delta) !== -1) return;
+        resetWheelAcc();
+        isSnapLock = true;
+        window.scrollTo(0, splitStepTopAbs(steps - 1));
+        setStep(steps - 1);
+        window.setTimeout(() => { isSnapLock = false; }, SNAP_LOCK_MS);
+        return;
+      }
+
+      // Ultimo step -> CONTATTI: snap diretto anche sul bordo se lo stage non e' perfettamente "active"
+      if(stepIndex === steps - 1 && delta > 0){
+        e.preventDefault();
+        if(consumeWheelThreshold(delta) !== 1) return;
+        resetWheelAcc();
+        isSnapLock = true;
+        window.scrollTo(0, Math.round(contattiTop));
+        window.setTimeout(() => { isSnapLock = false; }, SNAP_LOCK_MS);
+        return;
+      }
+
+      // Top pagina -> split: primo scroll giu aggancia subito lo split (snap)
+      if(!stageIsActive()){
+        const vh = window.innerHeight;
+
+        // Se siamo ancora nella home (parte alta): snap verso lo split
+        if(delta > 0 && window.scrollY < vh * 0.92){
+          e.preventDefault();
+          resetWheelAcc();
+          isSnapLock = true;
+          smoothScrollToStep(0);
+          // assicuro step 0 quando arrivi
+          setStep(0);
+          window.setTimeout(() => { isSnapLock = false; }, SNAP_LOCK_MS);
+          return;
+        }
+
+        // Se siamo in alto "vicino" allo split ma non ancora attivo, lascio scroll normale
+        return;
+      }
+
+      // Primo step -> top pagina: uno scroll su torna all'inizio (snap)
+      if(stepIndex === 0 && delta < 0){
+        e.preventDefault();
+        resetWheelAcc();
+        isSnapLock = true;
+        // Vai all'inizio pagina
+        window.scrollTo({ top: 0, behavior:"smooth" });
+        window.setTimeout(() => { isSnapLock = false; }, SNAP_LOCK_MS);
+        return;
+      }
+
+      // Altrimenti: gestione normale degli step (1 scroll = 1 pagina)
+      onWheel(e);
+    }
+
+    // Setup iniziale
+    syncViewportHeightVar();
+    buildMobileStack();
+    initTagliGalleries();
+    setStep(0);
+    updateTopBar();
+    window.addEventListener("scroll", onScroll, { passive:true });
+    window.addEventListener("keydown", onKey);
+
+    // IMPORTANT: per poter usare preventDefault su wheel serve passive:false
+    window.addEventListener("wheel", onWheelSmart, { passive:false });
+
+    window.addEventListener("resize", () => {
+      syncViewportHeightVar();
+      setStep(stepIndex);
+      if(!isDesktop()){
+        buildMobileStack();
+        initTagliGalleries();
+      }
+      updateTopBar();
+    });
+
+    function finishPreload(){
+      if(!preloaderEl){
+        isPreloading = false;
+        document.body.classList.remove("is-preloading");
+        updateTopBar();
+        return;
+      }
+
+      const canTransfer =
+        isDesktop() &&
+        preloaderLogoEl &&
+        topBarEl &&
+        topBarLogoEl;
+
+      if(!canTransfer){
+        isPreloading = false;
+        document.body.classList.remove("is-preloading");
+        preloaderEl.classList.add("is-hidden");
+        if(topBarEl) topBarEl.classList.remove("is-preload-hidden");
+        updateTopBar();
+        return;
+      }
+
+      // Nessun trasferimento del logo: il logo del preload deve sparire insieme alla schermata nera.
+      isLogoTransfer = false;
+      preloaderLogoEl.style.opacity = "0";
+      preloaderEl.classList.add("is-hidden");
+      isPreloading = false;
+      isTopBarDelay = true;
+      document.body.classList.remove("is-preloading");
+      topBarEl.classList.remove("is-hidden");
+      topBarLogoEl.style.opacity = "";
+      updateTopBar();
+      window.setTimeout(() => {
+        isTopBarDelay = false;
+        updateTopBar();
+      }, TOPBAR_DELAY_MS);
+      return;
+    }
+
+    // Preload di 5s esatti, poi trasporto immediato del logo verso la barra
+    window.setTimeout(finishPreload, PRELOAD_MS);
+
+    // Privacy, cookie e servizi esterni
+    (() => {
+      const CONSENT_KEY = "datizi_privacy_consent_v1";
+      const banner = document.getElementById("privacyBanner");
+      const prefsModal = document.getElementById("privacyPrefsModal");
+      const legalModal = document.getElementById("legalModal");
+      const legalTitle = document.getElementById("legalModalTitle");
+      const legalContent = legalModal && legalModal.querySelector("[data-legal-content]");
+      const externalCheckbox = document.getElementById("externalServicesConsent");
+      const mapFrame = document.querySelector(".contactMap iframe[data-src]");
+      const mapConsent = document.querySelector("[data-map-consent]");
+
+      const legalTexts = {
+        privacy: {
+          title: "Privacy policy",
+          html: `
+            <p><strong>Ultimo aggiornamento:</strong> 11 maggio 2026.</p>
+            <p>Questa informativa descrive come Da Tizi - Hair Studio tratta i dati personali raccolti tramite questo sito.</p>
+            <h3>Titolare del trattamento</h3>
+            <p>Da Tizi - Hair Studio, Via Oberdan 37, Colle di Val d'Elsa, contattabile tramite i recapiti indicati nella sezione Contatti del sito.</p>
+            <h3>Dati trattati</h3>
+            <ul>
+              <li>dati tecnici di navigazione necessari al funzionamento del sito;</li>
+              <li>dati comunicati volontariamente tramite telefono, WhatsApp o altri contatti indicati nel sito;</li>
+              <li>dati trattati da Google Maps solo dopo consenso ai servizi esterni.</li>
+            </ul>
+            <h3>Finalita e basi giuridiche</h3>
+            <p>I dati sono usati per mostrare il sito, rispondere alle richieste, gestire appuntamenti e adempiere a obblighi di legge. La mappa Google viene caricata sulla base del consenso.</p>
+            <h3>Conservazione</h3>
+            <p>I dati inviati volontariamente sono conservati per il tempo necessario a rispondere e gestire la richiesta, salvo obblighi di legge. Le preferenze privacy restano salvate nel browser fino a modifica o cancellazione.</p>
+            <h3>Destinatari</h3>
+            <p>I dati possono essere trattati da fornitori tecnici, consulenti e servizi esterni necessari. Se accetti la mappa, possono essere comunicati dati tecnici a Google.</p>
+            <h3>Diritti</h3>
+            <p>Puoi chiedere accesso, rettifica, cancellazione, limitazione, opposizione e revoca del consenso. Puoi inoltre proporre reclamo al Garante per la protezione dei dati personali.</p>
+          `
+        },
+        cookie: {
+          title: "Cookie policy",
+          html: `
+            <p><strong>Ultimo aggiornamento:</strong> 11 maggio 2026.</p>
+            <p>Questo sito usa impostazioni tecniche necessarie e, solo con consenso, carica contenuti esterni.</p>
+            <h3>Cookie tecnici</h3>
+            <p>Le preferenze privacy sono salvate nel browser tramite localStorage. Questo elemento serve a ricordare la scelta dell'utente e non richiede consenso.</p>
+            <h3>Servizi esterni</h3>
+            <p>La mappa Google nella sezione contatti e disattivata per impostazione predefinita. Viene caricata solo se accetti la categoria "Servizi esterni".</p>
+            <h3>Analytics e profilazione</h3>
+            <p>In questa versione non sono presenti Google Analytics, Meta Pixel o cookie pubblicitari/profilanti.</p>
+            <h3>Modifica del consenso</h3>
+            <p>Puoi modificare o revocare la scelta in ogni momento usando "Preferenze privacy" nel footer.</p>
+          `
+        },
+        termini: {
+          title: "Termini di servizio",
+          html: `
+            <p><strong>Ultimo aggiornamento:</strong> 11 maggio 2026.</p>
+            <h3>Uso del sito</h3>
+            <p>Il sito presenta informazioni su Da Tizi - Hair Studio, servizi, contatti e posizione. Le informazioni possono essere aggiornate o corrette in qualunque momento.</p>
+            <h3>Prenotazioni e contatti</h3>
+            <p>Le richieste inviate tramite telefono, WhatsApp o link esterni non costituiscono prenotazione confermata finche non ricevono conferma diretta dal salone.</p>
+            <h3>Contenuti</h3>
+            <p>Testi, immagini, video, logo e contenuti del sito appartengono ai rispettivi titolari e non possono essere copiati o riutilizzati senza autorizzazione.</p>
+            <h3>Link esterni</h3>
+            <p>Il sito puo contenere link a servizi di terze parti, come Google Maps e WhatsApp. L'uso di tali servizi e regolato dalle rispettive condizioni e informative.</p>
+            <h3>Limitazione</h3>
+            <p>Il sito viene fornito per finalita informative. Da Tizi - Hair Studio non risponde di indisponibilita temporanee, errori tecnici o contenuti di siti terzi.</p>
+          `
+        }
+      };
+
+      function getConsent(){
+        try{
+          return JSON.parse(localStorage.getItem(CONSENT_KEY) || "null");
+        }catch(_e){
+          return null;
+        }
+      }
+
+      function saveConsent(consent){
+        const next = {
+          necessary:true,
+          externalServices:Boolean(consent.externalServices),
+          savedAt:new Date().toISOString()
+        };
+        localStorage.setItem(CONSENT_KEY, JSON.stringify(next));
+        applyConsent(next);
+        if(banner) banner.hidden = true;
+        closePrefs();
+      }
+
+      function applyConsent(consent){
+        const allowExternal = Boolean(consent && consent.externalServices);
+        if(externalCheckbox) externalCheckbox.checked = allowExternal;
+        if(mapFrame && mapConsent){
+          if(allowExternal){
+            if(!mapFrame.getAttribute("src")){
+              mapFrame.setAttribute("src", mapFrame.dataset.src);
+            }
+            mapFrame.hidden = false;
+            mapConsent.hidden = true;
+          }else{
+            mapFrame.removeAttribute("src");
+            mapFrame.hidden = true;
+            mapConsent.hidden = false;
+          }
+        }
+      }
+
+      function openPrefs(){
+        const consent = getConsent();
+        if(externalCheckbox) externalCheckbox.checked = Boolean(consent && consent.externalServices);
+        if(prefsModal) prefsModal.hidden = false;
+      }
+
+      function closePrefs(){
+        if(prefsModal) prefsModal.hidden = true;
+      }
+
+      function openLegal(type){
+        const item = legalTexts[type] || legalTexts.privacy;
+        if(legalTitle) legalTitle.textContent = item.title;
+        if(legalContent) legalContent.innerHTML = item.html;
+        if(legalModal) legalModal.hidden = false;
+      }
+
+      function closeLegal(){
+        if(legalModal) legalModal.hidden = true;
+      }
+
+      document.querySelectorAll("[data-consent-accept], [data-consent-accept-modal]").forEach((btn) => {
+        btn.addEventListener("click", () => saveConsent({ externalServices:true }));
+      });
+      document.querySelectorAll("[data-consent-reject]").forEach((btn) => {
+        btn.addEventListener("click", () => saveConsent({ externalServices:false }));
+      });
+      document.querySelectorAll("[data-consent-settings], .privacyOpenPrefs").forEach((btn) => {
+        btn.addEventListener("click", openPrefs);
+      });
+      document.querySelectorAll("[data-consent-save]").forEach((btn) => {
+        btn.addEventListener("click", () => saveConsent({ externalServices:Boolean(externalCheckbox && externalCheckbox.checked) }));
+      });
+      document.querySelectorAll("[data-privacy-close]").forEach((btn) => {
+        btn.addEventListener("click", closePrefs);
+      });
+      document.querySelectorAll("[data-legal-open]").forEach((btn) => {
+        btn.addEventListener("click", () => openLegal(btn.dataset.legalOpen));
+      });
+      document.querySelectorAll("[data-legal-close]").forEach((btn) => {
+        btn.addEventListener("click", closeLegal);
+      });
+      [prefsModal, legalModal].forEach((modal) => {
+        modal && modal.addEventListener("click", (event) => {
+          if(event.target === modal){
+            modal.hidden = true;
+          }
+        });
+      });
+      window.addEventListener("keydown", (event) => {
+        if(event.key === "Escape"){
+          closePrefs();
+          closeLegal();
+        }
+      });
+
+      const saved = getConsent();
+      applyConsent(saved);
+      if(!saved && banner) banner.hidden = false;
+    })();
+  </script>
+</body>
+</html>
