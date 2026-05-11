@@ -126,6 +126,12 @@
       border-color:rgba(255,255,255,.35);
       background:rgba(255,255,255,.08);
     }
+    .mobileMenu{
+      display:none;
+    }
+    .mobileMenuPanel{
+      display:none;
+    }
     @media (max-width: 640px){
       .topBar__inner{
         width:calc(100% - 16px);
@@ -142,6 +148,77 @@
         min-height:34px;
         padding:0 10px;
         font-size:13px;
+      }
+      .mobileMenu{
+        position:fixed;
+        top:14px;
+        left:14px;
+        z-index:120;
+        width:46px;
+        height:46px;
+        border-radius:999px;
+        border:1px solid rgba(11,11,11,.12);
+        background:rgba(243,240,232,.78);
+        color:#0b0b0b;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        padding:0;
+        cursor:pointer;
+        box-shadow:0 8px 24px rgba(0,0,0,.12);
+        backdrop-filter:blur(12px);
+        -webkit-backdrop-filter:blur(12px);
+      }
+      .mobileMenu span{
+        position:relative;
+        display:block;
+        width:20px;
+        height:2px;
+        border-radius:999px;
+        background:currentColor;
+      }
+      .mobileMenu span::before,
+      .mobileMenu span::after{
+        content:"";
+        position:absolute;
+        left:0;
+        width:20px;
+        height:2px;
+        border-radius:999px;
+        background:currentColor;
+      }
+      .mobileMenu span::before{ top:-7px; }
+      .mobileMenu span::after{ top:7px; }
+      .mobileMenuPanel{
+        position:fixed;
+        top:70px;
+        left:14px;
+        z-index:119;
+        width:min(250px, calc(100vw - 28px));
+        padding:8px;
+        border-radius:16px;
+        border:1px solid rgba(11,11,11,.10);
+        background:rgba(243,240,232,.94);
+        color:#0b0b0b;
+        box-shadow:0 16px 46px rgba(0,0,0,.16);
+        backdrop-filter:blur(14px);
+        -webkit-backdrop-filter:blur(14px);
+      }
+      .mobileMenuPanel.is-open{
+        display:grid;
+        gap:2px;
+      }
+      .mobileMenuPanel a{
+        display:flex;
+        align-items:center;
+        min-height:44px;
+        padding:0 12px;
+        border-radius:10px;
+        font-size:15px;
+        font-weight:560;
+      }
+      .mobileMenuPanel a:hover{
+        background:rgba(11,11,11,.06);
       }
     }
 
@@ -1144,9 +1221,10 @@
         line-height:.98;
       }
       .pageText{
-        max-width:18ch;
-        font-size: clamp(20px, 6vw, 34px);
-        line-height:1.42;
+        width:100%;
+        max-width:100%;
+        font-size: clamp(21px, 5.6vw, 30px);
+        line-height:1.38;
       }
       .pageLink{
         margin-top:4px;
@@ -1283,6 +1361,16 @@
     </div>
   </div>
 
+  <button class="mobileMenu" id="mobileMenuBtn" type="button" aria-label="Apri menu" aria-controls="mobileMenuPanel" aria-expanded="false">
+    <span aria-hidden="true"></span>
+  </button>
+  <nav class="mobileMenuPanel" id="mobileMenuPanel" aria-label="Menu sezioni mobile">
+    <a href="#servizi">Servizi</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#chi-sono">Chi sono</a>
+    <a href="#contatti">Contatti</a>
+  </nav>
+
   <a class="waFab" href="https://wa.me/393911480392" target="_blank" rel="noopener" aria-label="Contattaci su WhatsApp">
     <svg viewBox="0 0 32 32" aria-hidden="true">
       <path d="M19.11 17.34c-.27-.13-1.59-.78-1.84-.87-.25-.09-.43-.13-.62.13-.18.27-.71.87-.87 1.05-.16.18-.32.2-.59.07-.27-.13-1.12-.41-2.14-1.31-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.32.41-.47.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.47-.07-.13-.62-1.49-.85-2.04-.22-.53-.45-.46-.62-.47h-.53c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.27 0 1.33.97 2.62 1.11 2.8.13.18 1.9 2.9 4.6 4.06.64.28 1.14.44 1.53.56.64.2 1.22.17 1.68.1.51-.08 1.59-.65 1.81-1.28.22-.62.22-1.15.16-1.28-.07-.12-.25-.2-.52-.33Z"/>
@@ -1311,7 +1399,7 @@
                 </section>
 
                 <!-- P2: SERVIZI -->
-                <section class="page" data-step="1">
+                <section class="page" id="servizi" data-step="1">
                   <div class="pageInner">
                     <p class="pageKicker">Servizi</p>
                     <h2 class="pageTitle">Servizi</h2>
@@ -1321,7 +1409,7 @@
                 </section>
 
                 <!-- P3: I NOSTRI TAGLI -->
-                <section class="page" data-step="2">
+                <section class="page" id="gallery" data-step="2">
                   <div class="pageInner">
                     <p class="pageKicker">Gallery</p>
                     <h2 class="pageTitle">I nostri tagli</h2>
@@ -1330,7 +1418,7 @@
                 </section>
 
                 <!-- P4: CHI SONO -->
-                <section class="page" data-step="3">
+                <section class="page" id="chi-sono" data-step="3">
                   <div class="pageInner">
                     <p class="pageKicker">Studio</p>
                     <h2 class="pageTitle">Chi sono</h2>
@@ -1532,6 +1620,8 @@
     const contactBoxEl = document.querySelector("#contatti .contactBox");
     const leftRail    = document.getElementById("leftRail");
     const rightRail   = document.getElementById("rightRail");
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mobileMenuPanel = document.getElementById("mobileMenuPanel");
 
     const steps = 4; // P1..P4
     let stepIndex = 0;
@@ -1574,6 +1664,26 @@
 
     function isDesktop(){
       return window.matchMedia("(min-width: 1024px) and (hover: hover) and (pointer: fine)").matches;
+    }
+    function closeMobileMenu(){
+      if(!mobileMenuBtn || !mobileMenuPanel) return;
+      mobileMenuPanel.classList.remove("is-open");
+      mobileMenuBtn.setAttribute("aria-expanded", "false");
+    }
+    function initMobileMenu(){
+      if(!mobileMenuBtn || !mobileMenuPanel) return;
+      mobileMenuBtn.addEventListener("click", () => {
+        const isOpen = mobileMenuPanel.classList.toggle("is-open");
+        mobileMenuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+      mobileMenuPanel.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", closeMobileMenu);
+      });
+      document.addEventListener("click", (event) => {
+        if(!mobileMenuPanel.classList.contains("is-open")) return;
+        if(mobileMenuPanel.contains(event.target) || mobileMenuBtn.contains(event.target)) return;
+        closeMobileMenu();
+      });
     }
     function syncViewportHeightVar(){
       document.documentElement.style.setProperty("--vh", `${window.innerHeight}px`);
@@ -2069,6 +2179,7 @@
     buildMobileStack();
     initMobileReveals();
     initTagliGalleries();
+    initMobileMenu();
     setStep(0);
     updateTopBar();
     window.addEventListener("scroll", onScroll, { passive:true });
@@ -2084,6 +2195,8 @@
         buildMobileStack();
         initMobileReveals();
         initTagliGalleries();
+      }else{
+        closeMobileMenu();
       }
       updateTopBar();
     });
