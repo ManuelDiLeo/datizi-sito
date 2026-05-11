@@ -8,14 +8,14 @@
 
   <style>
     :root{
-      --bg:#ffffff;
-      --fg:#0b0b0b;
-      --muted:rgba(11,11,11,.62);
-      --line:rgba(11,11,11,.14);
+      --bg:#050505;
+      --fg:#f5f2ea;
+      --muted:rgba(245,242,234,.68);
+      --line:rgba(245,242,234,.16);
 
-      --paper:#f3f0e8;       /* beige/panna */
-      --paperText:#2a2926;
-      --paperMuted:rgba(42,41,38,.62);
+      --paper:#050505;
+      --paperText:#f5f2ea;
+      --paperMuted:rgba(245,242,234,.68);
 
       --radius:18px;
       --max:1180px;
@@ -157,9 +157,9 @@
         width:46px;
         height:46px;
         border-radius:999px;
-        border:1px solid rgba(11,11,11,.12);
-        background:rgba(243,240,232,.78);
-        color:#0b0b0b;
+        border:1px solid rgba(255,255,255,.18);
+        background:rgba(5,5,5,.78);
+        color:#fff;
         display:inline-flex;
         align-items:center;
         justify-content:center;
@@ -197,9 +197,9 @@
         width:min(250px, calc(100vw - 28px));
         padding:8px;
         border-radius:16px;
-        border:1px solid rgba(11,11,11,.10);
-        background:rgba(243,240,232,.94);
-        color:#0b0b0b;
+        border:1px solid rgba(255,255,255,.14);
+        background:rgba(5,5,5,.94);
+        color:#fff;
         box-shadow:0 16px 46px rgba(0,0,0,.16);
         backdrop-filter:blur(14px);
         -webkit-backdrop-filter:blur(14px);
@@ -218,7 +218,7 @@
         font-weight:560;
       }
       .mobileMenuPanel a:hover{
-        background:rgba(11,11,11,.06);
+        background:rgba(255,255,255,.10);
       }
     }
 
@@ -256,11 +256,11 @@
     }
     .btn:hover{ border-color:rgba(255,255,255,.6); transform: translateY(-1px); }
     .btn--solid{
-      background:#fff;
+      background:#f5f2ea;
       color:#000;
       border-color:#fff;
     }
-    .btn--solid:hover{ background:#f2f2f2; border-color:#f2f2f2; }
+    .btn--solid:hover{ background:#f5f2ea; border-color:#f5f2ea; }
 
     /* ==============================
        SPLIT PAGES (SCROLL A SCATTI)
@@ -345,7 +345,7 @@
         grid-template-columns: 1fr 1fr;
       }
       .leftPane{
-        border-right: 1px solid rgba(42,41,38,.10);
+        border-right: 1px solid rgba(255,255,255,.12);
       }
       /* Step iniziale: foto unica senza linea centrale */
       .splitStage.is-step-0 .leftPane{
@@ -404,13 +404,13 @@
       align-items:center;
       gap:10px;
       padding:10px 0;
-      border-bottom: 1px solid rgba(42,41,38,.24);
+      border-bottom: 1px solid rgba(255,255,255,.28);
       font-size:15px;
     }
     .pageLink span{
       display:inline-flex;
       width:34px; height:34px;
-      border:1px solid rgba(42,41,38,.28);
+      border:1px solid rgba(255,255,255,.28);
       border-radius:999px;
       align-items:center;
       justify-content:center;
@@ -626,7 +626,7 @@
       content:"";
       position:absolute;
       inset:0;
-      background: linear-gradient(to top, rgba(243,240,232,.92), rgba(243,240,232,.55));
+      background: linear-gradient(to top, rgba(5,5,5,.92), rgba(5,5,5,.55));
     }
     /* Niente velatura sopra la foto nella pagina JOIN */
     .page.is-join .joinOverlay,
@@ -655,8 +655,8 @@
       margin-right: 0;
       border-radius: 14px;
       overflow: hidden;
-      border:1px solid rgba(11,11,11,.08);
-      background:#f2f2f2;
+      border:1px solid rgba(255,255,255,.14);
+      background:#111;
       box-shadow:none;
     }
     .contactMap iframe{
@@ -679,7 +679,7 @@
       gap:12px;
       padding:24px;
       color:var(--fg);
-      background:#f2f2f2;
+      background:#111;
     }
     .mapConsent p{
       margin:0;
@@ -739,7 +739,7 @@
       display:flex;
       justify-content:center;
       border-top:1px solid var(--line);
-      background:#fff;
+      background:#050505;
     }
     .footer__inner{
       width:min(var(--max), 100%);
@@ -823,14 +823,14 @@
       white-space:nowrap;
     }
     .privacyBtn--solid{
-      background:#fff;
-      color:#0b0b0b;
-      border-color:#fff;
+      background:#f5f2ea;
+      color:#050505;
+      border-color:#f5f2ea;
     }
     .privacyBtn--light{
-      background:#0b0b0b;
+      background:#111;
       color:#fff;
-      border-color:#0b0b0b;
+      border-color:#111;
     }
     .privacyBtn:hover{
       filter:brightness(1.04);
@@ -850,7 +850,7 @@
       max-height:min(760px, calc(100vh - 36px));
       overflow:auto;
       border-radius:14px;
-      background:#fff;
+      background:#111;
       color:var(--fg);
       box-shadow:0 24px 80px rgba(0,0,0,.32);
     }
@@ -864,7 +864,7 @@
       gap:12px;
       padding:18px 20px;
       border-bottom:1px solid var(--line);
-      background:#fff;
+      background:#111;
     }
     .privacyModal__head h2{
       margin:0;
@@ -876,7 +876,7 @@
       height:38px;
       border-radius:999px;
       border:1px solid var(--line);
-      background:#fff;
+      background:#111;
       cursor:pointer;
     }
     .privacyModal__body{
@@ -909,12 +909,12 @@
       width:22px;
       height:22px;
       margin-top:2px;
-      accent-color:#0b0b0b;
+      accent-color:#f5f2ea;
     }
     .privacyModal__foot{
       padding:16px 20px 20px;
       border-top:1px solid var(--line);
-      background:#fff;
+      background:#111;
     }
     @media (max-width: 720px){
       .privacyBanner__inner{
@@ -936,7 +936,7 @@
     /* Contatti a schermo (100vh) + footer dentro (niente scroll extra) */
     .contactScreen{
       min-height:100vh;
-      background:#fff;
+      background:#050505;
       display:flex;
       justify-content:center;
       padding: 0 18px;
@@ -1205,7 +1205,7 @@
         height:auto !important;
         min-height:auto !important;
         padding: 44px 16px 34px !important;
-        border-bottom: 1px solid rgba(42,41,38,.10);
+        border-bottom: 1px solid rgba(255,255,255,.12);
         align-items:flex-start;
         flex-direction:column;
         gap:18px;
@@ -1404,7 +1404,6 @@
                     <p class="pageKicker">Servizi</p>
                     <h2 class="pageTitle">Servizi</h2>
                     <p class="pageText">Taglio, barba e cura dei dettagli. Una selezione essenziale e pulita.</p>
-                    <a class="pageLink" href="#contatti">Prenota <span>&rarr;</span></a>
                   </div>
                 </section>
 
@@ -1510,7 +1509,7 @@
               <div class="mapConsent" data-map-consent>
                 <strong>Mappa Google disattivata</strong>
                 <p>Per vedere la mappa serve il consenso ai servizi esterni, perche Google Maps puo trattare dati tecnici del dispositivo.</p>
-                <button class="btn btn--solid privacyOpenPrefs" type="button" style="background:#0b0b0b;color:#fff;border-color:#0b0b0b;">Gestisci preferenze</button>
+                <button class="btn btn--solid privacyOpenPrefs" type="button" style="background:#f5f2ea;color:#050505;border-color:#f5f2ea;">Gestisci preferenze</button>
               </div>
               <iframe
                 title="Mappa - Via Oberdan 37, Colle di Val d'Elsa"
@@ -1528,9 +1527,9 @@
             </div>
 
             <div class="contactActions">
-              <a class="btn btn--solid" style="background:#0b0b0b;color:#fff;border-color:#0b0b0b;" href="tel:+393911480392">Chiama</a>
-              <a class="btn" style="border-color:rgba(11,11,11,.22); background:#fff; color:#0b0b0b;" href="https://wa.me/393911480392" target="_blank" rel="noopener">WhatsApp</a>
-              <a class="btn" style="border-color:rgba(11,11,11,.22); background:#fff; color:#0b0b0b;" href="https://www.google.com/maps/search/?api=1&query=Via%20Oberdan%2037%2C%20Colle%20di%20Val%20d%27Elsa" target="_blank" rel="noopener">Apri in Maps</a>
+              <a class="btn btn--solid" style="background:#f5f2ea;color:#050505;border-color:#f5f2ea;" href="tel:+393911480392">Chiama</a>
+              <a class="btn" style="border-color:rgba(245,242,234,.28); background:#111; color:#f5f2ea;" href="https://wa.me/393911480392" target="_blank" rel="noopener">WhatsApp</a>
+              <a class="btn" style="border-color:rgba(245,242,234,.28); background:#111; color:#f5f2ea;" href="https://www.google.com/maps/search/?api=1&query=Via%20Oberdan%2037%2C%20Colle%20di%20Val%20d%27Elsa" target="_blank" rel="noopener">Apri in Maps</a>
             </div>
           </div>
         </div>
