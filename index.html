@@ -1088,7 +1088,7 @@
     }
 
     /* Mobile / tablet: fallback lineare senza scroll-jack */
-    @media (max-width: 1023px){
+    @media (max-width: 1023px), (hover: none) and (pointer: coarse){
       body{ overflow-x:hidden; }
 
       .splitSpacer{
@@ -1573,7 +1573,7 @@
 
 
     function isDesktop(){
-      return window.matchMedia("(min-width: 1024px)").matches;
+      return window.matchMedia("(min-width: 1024px) and (hover: hover) and (pointer: fine)").matches;
     }
     function syncViewportHeightVar(){
       document.documentElement.style.setProperty("--vh", `${window.innerHeight}px`);
