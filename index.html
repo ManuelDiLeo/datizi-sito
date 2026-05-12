@@ -1238,12 +1238,12 @@
         position:relative;
       }
       .page.is-join.is-mobile-intro{
-        min-height: 100vh !important;
+        min-height: 122svh !important;
         display:block;
       }
       @supports (height: 100dvh){
         .page.is-join.is-mobile-intro{
-          min-height: 100dvh !important;
+          min-height: 122svh !important;
         }
       }
       .page.is-join .joinOverlay{
@@ -1274,36 +1274,8 @@
       }
       .mStackImg .tagliGallery{
         width:100%;
-        height:auto;
-        aspect-ratio:auto;
-        min-height:0;
-        max-height:none;
-        display:grid;
-        grid-auto-flow:column;
-        grid-auto-columns:min(80vw, 360px);
-        grid-template-columns:none;
-        gap:12px;
-        overflow-x:auto;
-        overflow-y:hidden;
-        padding:0 2px 8px;
-        scroll-snap-type:x mandatory;
-        -webkit-overflow-scrolling:touch;
-        background:transparent;
-      }
-      .mStackImg .tagliGallery__slide{
-        position:relative;
-        inset:auto;
-        opacity:1;
-        pointer-events:auto;
-        width:100%;
-        aspect-ratio:3 / 4;
-        min-height:0;
-        overflow:hidden;
-        border-radius:clamp(10px, 3vw, 16px);
-        background:#050505;
-        scroll-snap-align:center;
-        border:1px solid rgba(255,255,255,.12);
-        transition:none;
+        height:min(66svh, 560px);
+        min-height:320px;
       }
       .mStackImg .tagliGallery__slide .videoLayer{
         height:100%;
@@ -1311,8 +1283,8 @@
       .mStackImg .tagliGallery__slide > img{
         width:100%;
         height:100%;
-        padding:0;
-        object-fit:cover;
+        padding:clamp(8px, 3vw, 22px);
+        object-fit:contain;
         object-position:center;
       }
       .mStackImg .tagliGallery__slide video{
@@ -1320,7 +1292,16 @@
         height:100%;
       }
       .mStackImg .tagliGallery__controls{
-        display:none !important;
+        inset:0;
+      }
+      .mStackImg .tagliGallery__nav{
+        width:34px;
+        height:34px;
+      }
+      .mStackImg .tagliGallery__nav[data-gallery-prev]{ left:10px; }
+      .mStackImg .tagliGallery__nav[data-gallery-next]{ right:10px; }
+      .mStackImg .tagliGallery__dot.is-active{
+        width:16px;
       }
       .mStackHero{
         width:100%;
@@ -1332,20 +1313,22 @@
         will-change:opacity, transform;
       }
       .mStackHero--intro{
-        position:relative;
+        position:sticky;
+        top:0;
         z-index:7;
-        height:100vh;
-        min-height:100vh;
+        height:100svh;
+        min-height:100svh;
         overflow:hidden;
         opacity:1;
         transform:none;
         transition:none;
-        background:#000;
+        background:transparent;
+        pointer-events:none;
       }
       @supports (height: 100dvh){
         .mStackHero--intro{
-          height:100dvh;
-          min-height:100dvh;
+          height:100svh;
+          min-height:100svh;
         }
       }
       .mStackHero--intro.is-visible{
@@ -1360,33 +1343,49 @@
         display:block;
       }
       .mStackHero--intro img{
-        height:100vh;
+        height:100svh;
         min-height:0;
         object-fit:cover;
         object-position:center;
-        transform:none;
+        transform:translate3d(0, var(--intro-shift, 0px), 0) scale(var(--intro-scale, 1));
+        transform-origin:center center;
+        will-change:transform;
       }
       @supports (height: 100dvh){
         .mStackHero--intro img{
-          height:100dvh;
+          height:100svh;
         }
       }
       .page.is-mobile-overlap{
-        margin-top:0;
-        padding-top:44px !important;
+        margin-top:-42svh;
+        padding-top:52svh !important;
         position:relative;
-        z-index:1;
+        z-index:8;
+      }
+      .page.is-mobile-overlap .pageInner,
+      .page.is-mobile-overlap .mStackImg{
+        position:relative;
+        z-index:9;
+      }
+      .page.is-mobile-overlap .pageInner{
+        background:rgba(5,5,5,.72);
+        border:1px solid rgba(255,255,255,.12);
+        border-radius:14px;
+        padding:16px;
+        backdrop-filter:blur(10px);
+        -webkit-backdrop-filter:blur(10px);
       }
       @media (orientation: landscape) and (max-height: 540px){
         .mStackImg .tagliGallery{
-          grid-auto-columns:min(72vw, 420px);
+          aspect-ratio: 16 / 9;
+          max-height:82svh;
         }
-        .mStackImg .tagliGallery__slide{
-          aspect-ratio:16 / 9;
+        .mStackImg .tagliGallery__slide > img{
+          padding:8px;
         }
         .page.is-mobile-overlap{
-          margin-top:0;
-          padding-top:36px !important;
+          margin-top:-28svh;
+          padding-top:34svh !important;
         }
       }
       .contactScreen{
