@@ -320,6 +320,31 @@
       pointer-events:none;
       transition: opacity 260ms ease;
     }
+    .homeVideo{
+      position:absolute;
+      inset:0;
+      z-index:7;
+      width:100%;
+      height:100%;
+      min-width:100%;
+      min-height:100%;
+      object-fit:cover;
+      object-position:center center;
+      display:block;
+      background:#000;
+      pointer-events:none;
+      opacity:0;
+      clip-path:inset(1px);
+      transform:scale(1.09);
+      transform-origin:center center;
+      transition: opacity 260ms ease;
+    }
+    .splitStage.is-step-0 .homeVideo{
+      opacity:1;
+    }
+    .splitStage.is-step-0:has(.homeVideo) .startCover{
+      opacity:0;
+    }
     .startCover::before,
     .startCover::after{
       display:none !important;
@@ -1174,6 +1199,9 @@
       .startCover{
         display:none !important;
       }
+      .homeVideo{
+        display:none !important;
+      }
       .firstFxBackdrop{
         display:none !important;
       }
@@ -1234,7 +1262,7 @@
       }
       @media (max-width: 767px){
         .page.is-join{
-          background-image:url('img/fotopag6mobile.jpeg') !important;
+          background:#000 !important;
           background-size:cover !important;
           background-position:center center !important;
         }
@@ -1351,7 +1379,7 @@
         min-height:0;
         object-fit:cover;
         object-position:center center;
-        transform:none;
+        transform:scale(1.09);
         transform-origin:center center;
       }
       @supports (height: 100dvh){
@@ -1366,6 +1394,22 @@
         background-size:cover;
         background-position:center center;
         background-repeat:no-repeat;
+      }
+      .mStackHero__video{
+        width:100%;
+        height:100%;
+        min-height:inherit;
+        min-width:100%;
+        object-fit:cover;
+        object-position:center center;
+        display:block;
+        background:#000;
+        clip-path:inset(1px);
+        transform:scale(1.09);
+        transform-origin:center center;
+      }
+      .mStackHero--intro:has(.mStackHero__video){
+        background:#000;
       }
       .page.is-mobile-overlap{
         margin-top:0;
@@ -1466,7 +1510,8 @@
       <div class="splitSpacer" id="splitSpacer" style="--steps:4">
         <div class="splitStage is-step-0" id="splitStage">
           <div class="firstFxBackdrop" aria-hidden="true"></div>
-          <div class="startCover" style="--start-cover:url('img/fotopag4.jpg');" aria-hidden="true"></div>
+          <div class="startCover" style="--start-cover:url('img/fotopag4.jpg');display:none !important;" aria-hidden="true"></div>
+          <video class="homeVideo" id="homeVideo" src="img/videohome1.mp4" autoplay muted loop playsinline preload="auto" aria-label="Da Tizi home video"></video>
           <div class="splitGrid" style="--steps:4">
 
             <!-- SINISTRA: rail che si muove (normale) -->
@@ -1474,7 +1519,7 @@
               <div class="rail" id="leftRail" style="--steps:4; transform:translateY(0px);">
 
                 <!-- P1: FOTO INTERA (split join) -->
-                <section class="page is-join" data-step="0" data-join="img/fotopag4.jpg" data-phone-join="img/fotopag6mobile.jpeg" style="background-image:url('img/fotopag4.jpg');background-size:cover;background-position:left center;background-repeat:no-repeat;">
+                <section class="page is-join" data-step="0" data-join="img/fotopag4.jpg" data-phone-join="img/fotopag6mobile.jpeg" data-phone-video="img/videohome.mp4" style="background-image:url('img/fotopag4.jpg');background-size:cover;background-position:left center;background-repeat:no-repeat;">
                   <div class="joinOverlay"></div>
                 </section>
 
@@ -1701,8 +1746,10 @@
     const rightRail   = document.getElementById("rightRail");
     const mobileMenuBtn = document.getElementById("mobileMenuBtn");
     const mobileMenuPanel = document.getElementById("mobileMenuPanel");
+    const homeVideoEl = document.getElementById("homeVideo");
 
     const steps = 4; // P1..P4
+    const HOME_VIDEO_RATE = 1.25;
     let stepIndex = 0;
     let isLock = false;
     let isSnapLock = false;
@@ -1774,9 +1821,29 @@
       if(!el) return;
       el.querySelectorAll("video").forEach((v) => {
         try{ v.currentTime = 0; }catch(_e){}
+        v.playbackRate = HOME_VIDEO_RATE;
         const p = v.play && v.play();
         if(p && typeof p.catch === "function") p.catch(() => {});
       });
+    }
+    function playVideoSafe(video){
+      if(!video) return;
+      video.playbackRate = HOME_VIDEO_RATE;
+      const p = video.play && video.play();
+      if(p && typeof p.catch === "function") p.catch(() => {});
+    }
+    function pauseVideoSafe(video){
+      if(!video) return;
+      try{ video.pause(); }catch(_e){}
+    }
+    function syncDesktopHomeVideo(){
+      if(!homeVideoEl) return;
+      homeVideoEl.playbackRate = HOME_VIDEO_RATE;
+      if(isDesktop() && stepIndex === 0 && stageIsActive()){
+        playVideoSafe(homeVideoEl);
+      }else{
+        pauseVideoSafe(homeVideoEl);
+      }
     }
     function initTagliGalleries(root = document){
       const galleries = Array.from(root.querySelectorAll(".tagliGallery"));
@@ -1845,6 +1912,7 @@
         const step = page.getAttribute("data-step");
         const joinUrl = page.getAttribute("data-join");
         const phoneJoinUrl = page.getAttribute("data-phone-join");
+        const phoneVideoUrl = page.getAttribute("data-phone-video");
         if(step === "1"){
           page.classList.add("is-mobile-overlap");
         }
@@ -1853,13 +1921,30 @@
           page.classList.add("is-mobile-intro");
           const wrap = document.createElement("div");
           wrap.className = "mStackHero mStackHero--intro is-visible";
-          const heroBg = document.createElement("div");
-          const heroUrl = (isPhone() && phoneJoinUrl) ? phoneJoinUrl : joinUrl;
-          heroBg.className = "mStackHero__bg";
-          heroBg.setAttribute("role", "img");
-          heroBg.setAttribute("aria-label", "Da Tizi");
-          heroBg.style.backgroundImage = `url("${heroUrl}")`;
-          wrap.appendChild(heroBg);
+          if(isPhone() && phoneVideoUrl){
+            const video = document.createElement("video");
+            video.className = "mStackHero__video";
+            video.src = phoneVideoUrl;
+            video.muted = true;
+            video.loop = true;
+            video.autoplay = true;
+            video.playsInline = true;
+            video.preload = "auto";
+            video.poster = phoneJoinUrl || joinUrl;
+            video.playbackRate = HOME_VIDEO_RATE;
+            video.setAttribute("muted", "");
+            video.setAttribute("playsinline", "");
+            video.setAttribute("aria-label", "Da Tizi home video");
+            wrap.appendChild(video);
+          }else{
+            const heroBg = document.createElement("div");
+            const heroUrl = (isPhone() && phoneJoinUrl) ? phoneJoinUrl : joinUrl;
+            heroBg.className = "mStackHero__bg";
+            heroBg.setAttribute("role", "img");
+            heroBg.setAttribute("aria-label", "Da Tizi");
+            heroBg.style.backgroundImage = `url("${heroUrl}")`;
+            wrap.appendChild(heroBg);
+          }
           page.appendChild(wrap);
           return;
         }
@@ -1936,6 +2021,34 @@
         panel.dataset.revealInit = "1";
         observer.observe(panel);
       });
+    }
+    function initMobileHomeVideo(){
+      if(isDesktop()) return;
+      const video = document.querySelector(".mStackHero__video");
+      if(!video || video.dataset.homeVideoInit === "1") return;
+      video.dataset.homeVideoInit = "1";
+      video.playbackRate = HOME_VIDEO_RATE;
+
+      if(!("IntersectionObserver" in window)){
+        playVideoSafe(video);
+        return;
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if(entry.isIntersecting && entry.intersectionRatio > .55){
+            playVideoSafe(video);
+          }else{
+            pauseVideoSafe(video);
+          }
+        });
+      }, {
+        root:null,
+        threshold:[0, .55, 1]
+      });
+
+      observer.observe(video);
+      playVideoSafe(video);
     }
 
     function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
@@ -2023,6 +2136,7 @@
 
       splitStage.classList.toggle("is-step-0", stepIndex === 0);
       updateTopBar();
+      syncDesktopHomeVideo();
 
       // Quando rientri in "I nostri tagli", il video deve sempre ripartire da capo.
       if(stepIndex === 2){
@@ -2157,6 +2271,7 @@
         }
       }
       updateTopBar();
+      syncDesktopHomeVideo();
       lastScrollY = y;
 
       // Se sei alla fine step e provi a scendere ancora, lasci scorrere la pagina:
@@ -2267,9 +2382,11 @@
     syncViewportHeightVar();
     buildMobileStack();
     initMobileReveals();
+    initMobileHomeVideo();
     initTagliGalleries();
     initMobileMenu();
     setStep(0);
+    syncDesktopHomeVideo();
     updateTopBar();
     window.addEventListener("scroll", onScroll, { passive:true });
     window.addEventListener("keydown", onKey);
@@ -2283,10 +2400,12 @@
       if(!isDesktop()){
         buildMobileStack();
         initMobileReveals();
+        initMobileHomeVideo();
         initTagliGalleries();
       }else{
         closeMobileMenu();
       }
+      syncDesktopHomeVideo();
       updateTopBar();
     });
 
