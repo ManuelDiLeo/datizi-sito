@@ -40,7 +40,11 @@
     }
     a{ color:inherit; text-decoration:none; }
     button{ font:inherit; color:inherit; }
-    img{ display:block; }
+    img,
+    video{
+      max-width:100%;
+      display:block;
+    }
 
     /* Top bar (solo prima pagina) */
     .topBar{
@@ -429,12 +433,12 @@
       height:100%;
       object-fit:cover;
       filter:saturate(1.02) contrast(1.02);
-      transform: scale(1.02) translateZ(0);
+      transform:none;
       backface-visibility:hidden;
     }
     .imgPage video{
       display:block;
-      object-fit:contain;
+      object-fit:cover;
       transform:none;
       filter:none;
       background:#000;
@@ -455,12 +459,10 @@
       display:block;
     }
     .imgPage .videoLayer .videoBg{
-      object-fit:cover;
-      filter: blur(22px) brightness(.72);
-      transform:scale(1.14);
+      display:none;
     }
     .imgPage .videoLayer .videoMain{
-      object-fit:contain;
+      object-fit:cover;
       filter:none;
       transform:none;
       background:transparent;
@@ -471,7 +473,7 @@
       width:100%;
       height:100%;
       overflow:hidden;
-      background:#111;
+      background:#050505;
     }
     .tagliGallery__slide{
       position:absolute;
@@ -481,15 +483,7 @@
       transition: opacity 220ms ease;
     }
     .tagliGallery__slide[data-media-type="image"]::before{
-      content:"";
-      position:absolute;
-      inset:-24px;
-      background-image:var(--tagli-bg);
-      background-size:cover;
-      background-position:var(--tagli-pos, center center);
-      filter:blur(22px) brightness(.66) saturate(1.08);
-      transform:scale(1.08);
-      z-index:0;
+      display:none;
     }
     .tagliGallery__slide.is-active{
       opacity:1;
@@ -501,8 +495,8 @@
       width:100%;
       height:100%;
       box-sizing:border-box;
-      padding:clamp(18px, 3vw, 54px);
-      object-fit:contain;
+      padding:0;
+      object-fit:cover;
       object-position:var(--tagli-pos, center center);
       display:block;
       transform:none;
@@ -528,7 +522,7 @@
       height:100%;
     }
     .tagliGallery__slide .videoLayer .videoMain{
-      object-fit:contain;
+      object-fit:cover;
       transform:none;
       filter:none;
     }
@@ -603,7 +597,7 @@
     /* JOIN: meta sinistra e meta destra della stessa immagine */
     .joinRight{
       height:var(--vh, 100vh);
-      background-size: 200% 100%;
+      background-size: cover;
       background-repeat:no-repeat;
       background-position: center;
     }
@@ -1232,18 +1226,21 @@
       }
       .page.is-join{
         padding:0 !important;
-        min-height: 62svh !important;
+        min-height: 100svh !important;
         border-bottom: none;
         background:none !important;
         position:relative;
       }
       .page.is-join.is-mobile-intro{
-        min-height: 122svh !important;
+        min-height: 100svh !important;
         display:block;
       }
       @supports (height: 100dvh){
+        .page.is-join{
+          min-height: 100dvh !important;
+        }
         .page.is-join.is-mobile-intro{
-          min-height: 122svh !important;
+          min-height: 100dvh !important;
         }
       }
       .page.is-join .joinOverlay{
@@ -1274,8 +1271,8 @@
       }
       .mStackImg .tagliGallery{
         width:100%;
-        height:min(66svh, 560px);
-        min-height:320px;
+        height:min(72svh, 620px);
+        min-height:360px;
       }
       .mStackImg .tagliGallery__slide .videoLayer{
         height:100%;
@@ -1283,8 +1280,8 @@
       .mStackImg .tagliGallery__slide > img{
         width:100%;
         height:100%;
-        padding:clamp(8px, 3vw, 22px);
-        object-fit:contain;
+        padding:0;
+        object-fit:cover;
         object-position:center;
       }
       .mStackImg .tagliGallery__slide video{
@@ -1305,7 +1302,7 @@
       }
       .mStackHero{
         width:100%;
-        min-height: 62svh;
+        min-height: 0;
         background:#000;
         opacity:0;
         transform:translateY(24px);
@@ -1313,8 +1310,7 @@
         will-change:opacity, transform;
       }
       .mStackHero--intro{
-        position:sticky;
-        top:0;
+        position:relative;
         z-index:7;
         height:100svh;
         min-height:100svh;
@@ -1322,13 +1318,12 @@
         opacity:1;
         transform:none;
         transition:none;
-        background:transparent;
-        pointer-events:none;
+        background:#000;
       }
       @supports (height: 100dvh){
         .mStackHero--intro{
-          height:100svh;
-          min-height:100svh;
+          height:100dvh;
+          min-height:100dvh;
         }
       }
       .mStackHero--intro.is-visible{
@@ -1337,55 +1332,38 @@
       }
       .mStackHero img{
         width:100%;
-        height:62svh;
-        min-height:420px;
+        height:auto;
+        min-height:0;
         object-fit:cover;
         display:block;
       }
       .mStackHero--intro img{
-        height:100svh;
+        width:100%;
+        height:100%;
         min-height:0;
         object-fit:cover;
-        object-position:center;
-        transform:translate3d(0, var(--intro-shift, 0px), 0) scale(var(--intro-scale, 1));
+        object-position:center center;
+        transform:none;
         transform-origin:center center;
-        will-change:transform;
       }
       @supports (height: 100dvh){
         .mStackHero--intro img{
-          height:100svh;
+          height:100%;
         }
       }
       .page.is-mobile-overlap{
-        margin-top:-42svh;
-        padding-top:52svh !important;
+        margin-top:0;
+        padding-top:44px !important;
         position:relative;
-        z-index:8;
-      }
-      .page.is-mobile-overlap .pageInner,
-      .page.is-mobile-overlap .mStackImg{
-        position:relative;
-        z-index:9;
-      }
-      .page.is-mobile-overlap .pageInner{
-        background:rgba(5,5,5,.72);
-        border:1px solid rgba(255,255,255,.12);
-        border-radius:14px;
-        padding:16px;
-        backdrop-filter:blur(10px);
-        -webkit-backdrop-filter:blur(10px);
+        z-index:1;
       }
       @media (orientation: landscape) and (max-height: 540px){
         .mStackImg .tagliGallery{
-          aspect-ratio: 16 / 9;
-          max-height:82svh;
-        }
-        .mStackImg .tagliGallery__slide > img{
-          padding:8px;
+          height:min(82svh, 520px);
         }
         .page.is-mobile-overlap{
-          margin-top:-28svh;
-          padding-top:34svh !important;
+          margin-top:0;
+          padding-top:36px !important;
         }
       }
       .contactScreen{
@@ -1480,7 +1458,7 @@
               <div class="rail" id="leftRail" style="--steps:4; transform:translateY(0px);">
 
                 <!-- P1: FOTO INTERA (split join) -->
-                <section class="page is-join" data-step="0" data-join="img/fotopag6.jpeg" style="background-image:url('img/fotopag6.jpeg');background-size:200% 100%;background-position:left center;background-repeat:no-repeat;">
+                <section class="page is-join" data-step="0" data-join="img/fotopag4.jpg" data-phone-join="img/fotopag6mobile.jpeg" style="background-image:url('img/fotopag4.jpg');background-size:cover;background-position:left center;background-repeat:no-repeat;">
                   <div class="joinOverlay"></div>
                 </section>
 
@@ -1571,7 +1549,7 @@
 
                 <!-- step 0 (FOTO INTERA split) -->
                 <div class="imgPage" data-step="0">
-                  <div class="joinRight" style="height:var(--vh, 100vh);background-image:url('img/fotopag6.jpeg');background-size:200% 100%;background-position:right center;background-repeat:no-repeat;"></div>
+                  <div class="joinRight" style="height:var(--vh, 100vh);background-image:url('img/fotopag4.jpg');background-size:cover;background-position:right center;background-repeat:no-repeat;"></div>
                 </div>
 
               </div>
@@ -1750,6 +1728,9 @@
     function isDesktop(){
       return window.matchMedia("(min-width: 1024px) and (hover: hover) and (pointer: fine)").matches;
     }
+    function isPhone(){
+      return window.matchMedia("(max-width: 767px)").matches;
+    }
     function closeMobileMenu(){
       if(!mobileMenuBtn || !mobileMenuPanel) return;
       mobileMenuPanel.classList.remove("is-open");
@@ -1847,6 +1828,7 @@
       pages.forEach((page) => {
         const step = page.getAttribute("data-step");
         const joinUrl = page.getAttribute("data-join");
+        const phoneJoinUrl = page.getAttribute("data-phone-join");
         if(step === "1"){
           page.classList.add("is-mobile-overlap");
         }
@@ -1856,7 +1838,7 @@
           const wrap = document.createElement("div");
           wrap.className = "mStackHero mStackHero--intro is-visible";
           const img = document.createElement("img");
-          img.src = joinUrl;
+          img.src = (isPhone() && phoneJoinUrl) ? phoneJoinUrl : joinUrl;
           img.alt = "Da Tizi";
           img.loading = "eager";
           wrap.appendChild(img);
@@ -1908,20 +1890,6 @@
         }
         page.appendChild(wrap);
       });
-      updateMobileIntro();
-    }
-    function updateMobileIntro(){
-      if(isDesktop()) return;
-      const intro = document.querySelector(".mStackHero--intro");
-      if(!intro) return;
-
-      const vh = Math.max(window.innerHeight || 1, 1);
-      const progress = Math.min(Math.max((window.scrollY || 0) / (vh * .62), 0), 1);
-      const scale = 1 - (progress * .32);
-      const shift = Math.round(progress * -(vh * .22));
-
-      intro.style.setProperty("--intro-scale", scale.toFixed(3));
-      intro.style.setProperty("--intro-shift", `${shift}px`);
     }
     function initMobileReveals(){
       if(isDesktop()) return;
@@ -2003,14 +1971,14 @@
       if(!joinUrl) return;
 
       page.style.backgroundImage = `url("${joinUrl}")`;
-      page.style.backgroundSize = "200% 100%";
+      page.style.backgroundSize = "cover";
       page.style.backgroundPosition = "left center";
       page.style.backgroundRepeat = "no-repeat";
 
       const rightJoin = rightRail.querySelector(`.imgPage[data-step="${i}"] .joinRight`);
       if(rightJoin){
         rightJoin.style.backgroundImage = `url("${joinUrl}")`;
-        rightJoin.style.backgroundSize = "200% 100%";
+        rightJoin.style.backgroundSize = "cover";
         rightJoin.style.backgroundPosition = "right center";
         rightJoin.style.backgroundRepeat = "no-repeat";
       }
@@ -2117,10 +2085,7 @@
     // Quando esci dallo stage verso il basso:
     // faccio "snap" alla fine della sezione (cosi non rimani in mezzo).
     function onScroll(){
-      if(!isDesktop()){
-        updateMobileIntro();
-        return;
-      }
+      if(!isDesktop()) return;
 
       const r = splitSpacer.getBoundingClientRect();
       const vh = window.innerHeight;
@@ -2299,7 +2264,6 @@
       setStep(stepIndex);
       if(!isDesktop()){
         buildMobileStack();
-        updateMobileIntro();
         initMobileReveals();
         initTagliGalleries();
       }else{
