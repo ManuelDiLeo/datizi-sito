@@ -4,4 +4,16 @@
     <loc>https://datizi.it/</loc>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>https://datizi.it/privacy.html</loc>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://datizi.it/cookie-policy.html</loc>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://datizi.it/termini.html</loc>
+    <priority>0.3</priority>
+  </url>
 </urlset>
