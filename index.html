@@ -1228,11 +1228,16 @@
         padding:0 !important;
         min-height: 100svh !important;
         border-bottom: none;
-        background-image:url('img/fotopag6mobile.jpeg?v=3') !important;
-        background-size:cover !important;
-        background-position:center center !important;
+        background:none !important;
         background-repeat:no-repeat !important;
         position:relative;
+      }
+      @media (max-width: 767px){
+        .page.is-join{
+          background-image:url('img/fotopag6mobile.jpeg') !important;
+          background-size:cover !important;
+          background-position:center center !important;
+        }
       }
       .page.is-join.is-mobile-intro{
         min-height: 100svh !important;
@@ -1354,6 +1359,14 @@
           height:100%;
         }
       }
+      .mStackHero__bg{
+        width:100%;
+        height:100%;
+        min-height:inherit;
+        background-size:cover;
+        background-position:center center;
+        background-repeat:no-repeat;
+      }
       .page.is-mobile-overlap{
         margin-top:0;
         padding-top:44px !important;
@@ -1461,7 +1474,7 @@
               <div class="rail" id="leftRail" style="--steps:4; transform:translateY(0px);">
 
                 <!-- P1: FOTO INTERA (split join) -->
-                <section class="page is-join" data-step="0" data-join="img/fotopag4.jpg" data-phone-join="img/fotopag6mobile.jpeg?v=3" style="background-image:url('img/fotopag4.jpg');background-size:cover;background-position:left center;background-repeat:no-repeat;">
+                <section class="page is-join" data-step="0" data-join="img/fotopag4.jpg" data-phone-join="img/fotopag6mobile.jpeg" style="background-image:url('img/fotopag4.jpg');background-size:cover;background-position:left center;background-repeat:no-repeat;">
                   <div class="joinOverlay"></div>
                 </section>
 
@@ -1731,6 +1744,9 @@
     function isDesktop(){
       return window.matchMedia("(min-width: 1024px) and (hover: hover) and (pointer: fine)").matches;
     }
+    function isPhone(){
+      return window.matchMedia("(max-width: 767px)").matches;
+    }
     function closeMobileMenu(){
       if(!mobileMenuBtn || !mobileMenuPanel) return;
       mobileMenuPanel.classList.remove("is-open");
@@ -1837,11 +1853,13 @@
           page.classList.add("is-mobile-intro");
           const wrap = document.createElement("div");
           wrap.className = "mStackHero mStackHero--intro is-visible";
-          const img = document.createElement("img");
-          img.src = phoneJoinUrl || joinUrl;
-          img.alt = "Da Tizi";
-          img.loading = "eager";
-          wrap.appendChild(img);
+          const heroBg = document.createElement("div");
+          const heroUrl = (isPhone() && phoneJoinUrl) ? phoneJoinUrl : joinUrl;
+          heroBg.className = "mStackHero__bg";
+          heroBg.setAttribute("role", "img");
+          heroBg.setAttribute("aria-label", "Da Tizi");
+          heroBg.style.backgroundImage = `url("${heroUrl}")`;
+          wrap.appendChild(heroBg);
           page.appendChild(wrap);
           return;
         }
